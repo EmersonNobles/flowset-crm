@@ -82,12 +82,12 @@ feat: design system base — paleta, tipografia, sidebar, header e layouts
 **Objetivo:** Telas de autenticação visualmente completas, prontas para receber a lógica do Supabase Auth na Fase 3.
 
 **Entregas:**
-- [ ] Tela `/login` — campos e-mail + senha, link "esqueci minha senha", link para cadastro
-- [ ] Tela `/cadastro` — campos nome, e-mail, senha + confirmar senha
-- [ ] Tela `/recuperar-senha` — campo e-mail, mensagem de confirmação
-- [ ] Componente `AuthCard` reutilizável para envolver os formulários
-- [ ] Validação de formulário com `react-hook-form` + `zod` (sem submit real)
-- [ ] Feedback visual de loading state nos botões
+- [x] Tela `/login` — campos e-mail + senha, link "esqueci minha senha", link para cadastro
+- [x] Tela `/cadastro` — campos nome, e-mail, senha + confirmar senha
+- [x] Tela `/recuperar-senha` — campo e-mail, mensagem de confirmação
+- [x] Componente `AuthCard` reutilizável para envolver os formulários
+- [x] Validação de formulário com `react-hook-form` + `zod` (sem submit real)
+- [x] Feedback visual de loading state nos botões
 
 **Commit final:**
 ```
@@ -103,15 +103,15 @@ feat: telas de autenticação (UI) — login, cadastro e recuperação de senha
 **Objetivo:** Telas completas de listagem e detalhe de leads com dados mock, incluindo busca, filtros e formulário de criação.
 
 **Entregas:**
-- [ ] Criar mock data de leads em `src/lib/mock-data.ts`
+- [ ] Criar mock data de leads em `src/lib/mock/leads.ts`
 - [ ] Tela `/leads` — tabela de leads com colunas: nome, empresa, e-mail, status, responsável, data
 - [ ] Componente `LeadStatusBadge` com cores por status (Novo, Contato, Proposta, Negociação, Ganho, Perdido)
-- [ ] Barra de busca (input com ícone, filtragem local nos mock data)
-- [ ] Filtros laterais ou dropdown: por status, responsável, data de criação
-- [ ] Modal `CreateLeadDialog` — formulário com: nome, e-mail, telefone, empresa, cargo, status
-- [ ] Tela `/leads/[id]` — perfil completo do lead (dados + seção de atividades vazia por agora)
-- [ ] Componente `LeadCard` para visualização compacta
-- [ ] Paginação ou scroll infinito na listagem (visual apenas)
+- [ ] Componente `LeadsFilters` — busca (input com ícone) + filtros por status e responsável em um único componente
+- [ ] Componente `LeadFormDialog` — formulário de criar, editar e deletar lead (nome, e-mail, telefone, empresa, cargo, status)
+- [ ] Tela `/leads/[id]` — perfil completo do lead com `LeadProfileCard` lateral + seção de atividades
+- [ ] Componente `LeadProfileCard` — card lateral no detalhe do lead com todos os dados
+- [ ] Componente `ActivityTimeline` — timeline estática com atividades mock no detalhe do lead
+- [ ] Componente `ActivityItem` — item individual da timeline (ícone por tipo, autor, data relativa)
 
 **Commit final:**
 ```
