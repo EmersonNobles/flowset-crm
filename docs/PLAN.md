@@ -103,15 +103,15 @@ feat: telas de autenticação (UI) — login, cadastro e recuperação de senha
 **Objetivo:** Telas completas de listagem e detalhe de leads com dados mock, incluindo busca, filtros e formulário de criação.
 
 **Entregas:**
-- [ ] Criar mock data de leads em `src/lib/mock/leads.ts`
-- [ ] Tela `/leads` — tabela de leads com colunas: nome, empresa, e-mail, status, responsável, data
-- [ ] Componente `LeadStatusBadge` com cores por status (Novo, Contato, Proposta, Negociação, Ganho, Perdido)
-- [ ] Componente `LeadsFilters` — busca (input com ícone) + filtros por status e responsável em um único componente
-- [ ] Componente `LeadFormDialog` — formulário de criar, editar e deletar lead (nome, e-mail, telefone, empresa, cargo, status)
-- [ ] Tela `/leads/[id]` — perfil completo do lead com `LeadProfileCard` lateral + seção de atividades
-- [ ] Componente `LeadProfileCard` — card lateral no detalhe do lead com todos os dados
-- [ ] Componente `ActivityTimeline` — timeline estática com atividades mock no detalhe do lead
-- [ ] Componente `ActivityItem` — item individual da timeline (ícone por tipo, autor, data relativa)
+- [x] Criar mock data de leads em `src/lib/mock/leads.ts`
+- [x] Tela `/leads` — tabela de leads com colunas: nome, empresa, e-mail, status, responsável, data
+- [x] Componente `LeadStatusBadge` com cores por status (Novo, Contato, Proposta, Negociação, Ganho, Perdido)
+- [x] Componente `LeadsFilters` — busca (input com ícone) + filtros por status e responsável em um único componente
+- [x] Componente `LeadFormDialog` — formulário de criar, editar e deletar lead (nome, e-mail, telefone, empresa, cargo, status)
+- [x] Tela `/leads/[id]` — perfil completo do lead com `LeadProfileCard` lateral + seção de atividades
+- [x] Componente `LeadProfileCard` — card lateral no detalhe do lead com todos os dados
+- [x] Componente `ActivityTimeline` — timeline estática com atividades mock no detalhe do lead
+- [x] Componente `ActivityItem` — item individual da timeline (ícone por tipo, autor, data relativa)
 
 **Commit final:**
 ```
