@@ -2,11 +2,10 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Loader2 } from "lucide-react"
+import { Loader2, MailCheck } from "lucide-react"
 
 import { AuthCard } from "@/components/crm/auth-card"
 import { Button } from "@/components/ui/button"
@@ -14,28 +13,56 @@ import { cn } from "@/lib/utils"
 
 const schema = z.object({
   email: z.string().min(1, "E-mail obrigatório").email("E-mail inválido"),
-  password: z.string().min(1, "Senha obrigatória"),
 })
 
 type FormData = z.infer<typeof schema>
 
-export default function LoginPage() {
-  const router = useRouter()
+export default function RecuperarSenhaPage() {
   const [loading, setLoading] = useState(false)
+  const [sent, setSent] = useState(false)
 
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) })
 
   function onSubmit() {
     setLoading(true)
-    setTimeout(() => router.push("/dashboard"), 1500)
+    setTimeout(() => {
+      setLoading(false)
+      setSent(true)
+    }, 1500)
+  }
+
+  if (sent) {
+    return (
+      <AuthCard title="E-mail enviado" description="Verifique sua caixa de entrada">
+        <div className="flex flex-col items-center gap-3 py-2 text-center">
+          <div className="flex items-center justify-center size-12 rounded-full bg-primary/10">
+            <MailCheck className="size-6 text-primary" />
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Enviamos um link de recuperação para{" "}
+            <span className="font-medium text-foreground">{getValues("email")}</span>.
+          </p>
+          <p className="text-xs text-muted-foreground">Não recebeu? Verifique a pasta de spam.</p>
+        </div>
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          <Link href="/login" className="text-primary font-medium hover:underline">
+            Voltar para o login
+          </Link>
+        </p>
+      </AuthCard>
+    )
   }
 
   return (
-    <AuthCard title="Entrar" description="Acesse sua conta FlowSet">
+    <AuthCard
+      title="Recuperar senha"
+      description="Enviaremos um link para redefinir sua senha"
+    >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-foreground">E-mail</label>
@@ -54,40 +81,15 @@ export default function LoginPage() {
           )}
         </div>
 
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-foreground">Senha</label>
-            <Link
-              href="/recuperar-senha"
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Esqueci minha senha
-            </Link>
-          </div>
-          <input
-            type="password"
-            placeholder="••••••••"
-            disabled={loading}
-            {...register("password")}
-            className={cn(
-              "w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50",
-              errors.password ? "border-destructive focus:ring-destructive/40" : "border-border"
-            )}
-          />
-          {errors.password && (
-            <p className="text-xs text-destructive">{errors.password.message}</p>
-          )}
-        </div>
-
         <Button type="submit" disabled={loading} className="w-full mt-1 h-9">
-          {loading ? <Loader2 className="size-4 animate-spin" /> : "Entrar"}
+          {loading ? <Loader2 className="size-4 animate-spin" /> : "Enviar link"}
         </Button>
       </form>
 
       <p className="mt-5 text-center text-sm text-muted-foreground">
-        Não tem conta?{" "}
-        <Link href="/cadastro" className="text-primary font-medium hover:underline">
-          Criar conta
+        Lembrou a senha?{" "}
+        <Link href="/login" className="text-primary font-medium hover:underline">
+          Voltar para o login
         </Link>
       </p>
     </AuthCard>
