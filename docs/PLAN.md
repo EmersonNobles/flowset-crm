@@ -122,24 +122,27 @@ feat: gestão de leads (UI) — listagem, filtros, detalhe e modal de criação
 
 ### M4 — Pipeline Kanban (UI)
 
-**Branch:** `feat/pipeline-ui`
+**Branch:** `feat/pipeline-ui` → refinamento visual em `feat/brand-identity-v2`
 
 **Objetivo:** Board Kanban visual e funcional com drag-and-drop entre colunas, usando dados mock. A lógica de persistência vem na Fase 4.
 
 **Entregas:**
 - [x] Instalar `@dnd-kit/core` e `@dnd-kit/sortable`
-- [x] Criar mock data de deals em `src/lib/mock/deals.ts`
+- [x] Criar mock data de deals em `src/lib/mock/deals.ts` com `STAGE_COLORS` por etapa
 - [x] Tela `/pipeline` — board horizontal com 6 colunas: Novo Lead, Contato Realizado, Proposta Enviada, Negociação, Fechado Ganho, Fechado Perdido
-- [x] Componente `KanbanColumn` — cabeçalho com nome da etapa + contador de cards + valor total
-- [x] Componente `DealCard` — título do negócio, valor (R$), nome do lead, responsável (avatar), prazo
-- [x] Drag-and-drop funcional entre colunas (movimenta o card visualmente, sem persistir)
-- [x] Modal `CreateDealDialog` — campos: título, valor, lead vinculado, responsável, prazo, etapa inicial
+- [x] Componente `KanbanColumn` — cabeçalho colorido por etapa, contador, valor total, botão "+" para criar deal na etapa
+- [x] Componente `DealCard` — accent line via `inset box-shadow`, valor em IBM Plex Mono, badge "Vencido", `ActionMenu` (⋮)
+- [x] Drag-and-drop funcional entre colunas (`PointerSensor` + `TouchSensor` para mobile)
+- [x] `DragOverlay` com card rotacionado (`rotate(1.5deg) scale(1.04)`) e cor por etapa
+- [x] `DealFormDialog` em `src/components/pipeline/` — campos: título, valor, lead, responsável, prazo, etapa, observações
+- [x] Pre-seleção de etapa ao clicar no "+" da coluna
 - [x] Sidebar deslizante `DealDetailSheet` ao clicar no card — exibe todos os dados do deal
-- [x] Coluna "Fechado Ganho" com cor verde; "Fechado Perdido" com cor cinza/vermelho
+- [x] Identidade visual v2: fontes Syne + DM Sans + IBM Plex Mono, chartreuse `#CAFF33` como primary, noise texture
 
-**Commit final:**
+**Commits:**
 ```
 feat: pipeline kanban (UI) — board com drag-and-drop, deal cards e modais
+feat(brand): identidade visual v2 — fontes, stage colors e pipeline redesign
 ```
 
 ---
