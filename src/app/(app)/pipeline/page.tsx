@@ -1,13 +1,9 @@
-import { PageHeader } from "@/components/crm/page-header";
+import { KanbanBoard } from "@/components/crm/kanban-board"
 
 export default function PipelinePage() {
   return (
-    <div>
-      <PageHeader
-        title="Pipeline"
-        subtitle="Acompanhe seus negócios no Kanban"
-      />
-      <p className="text-muted-foreground text-sm">Em breve: board Kanban (M4)</p>
+    <div className="flex flex-col h-full -m-4 md:-m-6">
+      <KanbanBoard />
     </div>
-  );
+  )
 }
