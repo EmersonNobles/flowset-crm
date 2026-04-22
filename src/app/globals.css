@@ -13,6 +13,7 @@
     --popover: 1 0 0;
     --popover-foreground: 0.2 0.03 255;
 
+    /* Light mode: indigo primary */
     --primary: 0.511 0.262 279;
     --primary-foreground: 1 0 0;
 
@@ -36,39 +37,52 @@
   }
 
   .dark {
-    --background: 0.17 0.025 255;
-    --foreground: 0.97 0.004 247;
+    --background: 0.14 0.02 255;
+    --foreground: 0.96 0.005 247;
 
-    --card: 0.21 0.03 255;
-    --card-foreground: 0.97 0.004 247;
+    --card: 0.18 0.025 255;
+    --card-foreground: 0.96 0.005 247;
 
-    --popover: 0.21 0.03 255;
-    --popover-foreground: 0.97 0.004 247;
+    --popover: 0.18 0.025 255;
+    --popover-foreground: 0.96 0.005 247;
 
-    --primary: 0.62 0.22 279;
-    --primary-foreground: 1 0 0;
+    /* Dark mode: chartreuse #CAFF33 ≈ oklch(0.93 0.233 124) */
+    --primary: 0.93 0.233 124;
+    --primary-foreground: 0.13 0.04 124;
 
-    --secondary: 0.26 0.03 255;
-    --secondary-foreground: 0.97 0.004 247;
+    --secondary: 0.23 0.025 255;
+    --secondary-foreground: 0.96 0.005 247;
 
-    --muted: 0.26 0.03 255;
-    --muted-foreground: 0.62 0.02 255;
+    --muted: 0.23 0.025 255;
+    --muted-foreground: 0.58 0.02 255;
 
-    --accent: 0.26 0.03 255;
-    --accent-foreground: 0.97 0.004 247;
+    --accent: 0.23 0.025 255;
+    --accent-foreground: 0.96 0.005 247;
 
-    --destructive: 0.704 0.191 22.216;
-    --destructive-foreground: 0.97 0.004 247;
+    --destructive: 0.65 0.22 22;
+    --destructive-foreground: 0.96 0.005 247;
 
     --border: 1 0 0 / 10%;
-    --input: 1 0 0 / 15%;
-    --ring: 0.62 0.22 279;
+    --input: 1 0 0 / 12%;
+    --ring: 0.93 0.233 124;
   }
 
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Subtle noise texture overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }
