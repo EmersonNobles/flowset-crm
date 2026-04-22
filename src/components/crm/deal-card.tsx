@@ -5,7 +5,7 @@ import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { Calendar, AlertCircle, MoreHorizontal, Pencil, ArrowRight, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { STAGE_COLORS, PIPELINE_COLUMNS, type Deal } from "@/lib/mock/deals"
+import { STAGE_COLORS, type Deal } from "@/lib/mock/deals"
 
 const OVERDUE_HEX = "#FF4757"
 
@@ -38,7 +38,7 @@ function getInitials(name: string): string {
     .toUpperCase()
 }
 
-function ActionMenu({ stageHex }: { stageHex: string }) {
+function ActionMenu() {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -107,11 +107,6 @@ export function DealCard({ deal, onCardClick, isOverlay }: DealCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: deal.id })
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  }
-
   const overdue = isOverdue(deal.dueDate)
   const stageHex = STAGE_COLORS[deal.stage].hex
   const dueDateColor = overdue ? OVERDUE_HEX : undefined
@@ -144,7 +139,7 @@ export function DealCard({ deal, onCardClick, isOverlay }: DealCardProps) {
         <p className="text-xs font-semibold text-foreground leading-snug line-clamp-2 flex-1">
           {deal.title}
         </p>
-        {!isOverlay && <ActionMenu stageHex={stageHex} />}
+        {!isOverlay && <ActionMenu />}
       </div>
 
       {/* Lead avatar + name */}
