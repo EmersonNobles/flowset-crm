@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { AlertCircle } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { STAGE_COLORS, type Deal } from "@/lib/mock/deals"
@@ -75,7 +76,12 @@ export function UpcomingDeals({ deals, today }: UpcomingDealsProps) {
                       )}
                     >
                       <td className="px-4 py-3 font-medium">
-                        <span className="line-clamp-1 max-w-[200px]">{deal.title}</span>
+                        <Link
+                          href="/pipeline"
+                          className="line-clamp-1 max-w-[200px] hover:text-primary hover:underline underline-offset-4 transition-colors"
+                        >
+                          {deal.title}
+                        </Link>
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-foreground">{deal.leadName}</span>
