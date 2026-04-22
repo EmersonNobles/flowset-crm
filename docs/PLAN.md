@@ -183,16 +183,16 @@ feat(dashboard): link no nome do negócio direciona para /pipeline
 **Objetivo:** Autenticação real com Supabase conectada às telas da Fase 2. Usuário consegue criar conta, fazer login e ter sessão persistida.
 
 **Entregas:**
-- [ ] Criar projeto no Supabase (ou configurar local com Docker)
-- [ ] Instalar `@supabase/supabase-js` e `@supabase/ssr`
-- [ ] Criar clientes Supabase: `src/lib/supabase/client.ts` (browser) e `src/lib/supabase/server.ts` (RSC/actions)
-- [ ] Criar `src/middleware.ts` para proteger rotas da área `(app)` e redirecionar para `/login`
-- [ ] Conectar formulário de cadastro ao `supabase.auth.signUp()`
-- [ ] Conectar formulário de login ao `supabase.auth.signInWithPassword()`
-- [ ] Conectar recuperação de senha ao `supabase.auth.resetPasswordForEmail()`
-- [ ] Criar rota de callback `/auth/callback` para confirmar e-mail
-- [ ] Botão de logout no header conectado ao `supabase.auth.signOut()`
-- [ ] Gerar tipos TypeScript: `npx supabase gen types typescript`
+- [x] Criar projeto no Supabase (ou configurar local com Docker)
+- [x] Instalar `@supabase/supabase-js` e `@supabase/ssr`
+- [x] Criar clientes Supabase: `src/lib/supabase/client.ts` (browser, lazy singleton) e `src/lib/supabase/server.ts` (RSC/actions, async)
+- [x] Criar `src/middleware.ts` para proteger rotas da área `(app)` e redirecionar para `/login`
+- [x] Conectar formulário de cadastro ao `supabase.auth.signUp()`
+- [x] Conectar formulário de login ao `supabase.auth.signInWithPassword()`
+- [x] Conectar recuperação de senha ao `supabase.auth.resetPasswordForEmail()`
+- [x] Criar rota de callback `/auth/callback` para confirmar e-mail
+- [x] Botão de logout no header conectado ao `supabase.auth.signOut()`
+- [ ] Gerar tipos TypeScript: `npx supabase gen types typescript` (pendente — aguarda M7 criar as tabelas)
 
 **Commit final:**
 ```

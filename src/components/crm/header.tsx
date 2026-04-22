@@ -2,6 +2,8 @@
 
 import { ChevronDown, Building2, LogOut, User } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const mockWorkspaces = [
@@ -10,8 +12,16 @@ const mockWorkspaces = [
 ];
 
 export function Header() {
+  const router = useRouter();
   const [activeWorkspace] = useState(mockWorkspaces[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
     <header className="h-14 border-b border-border bg-card px-4 md:px-6 flex items-center justify-between shrink-0">
@@ -63,7 +73,10 @@ export function Header() {
           <User className="h-4 w-4" />
           <span className="hidden sm:inline">Minha conta</span>
         </button>
-        <button className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:bg-accent hover:text-destructive transition-colors">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:bg-accent hover:text-destructive transition-colors"
+        >
           <LogOut className="h-4 w-4" />
           <span className="hidden sm:inline">Sair</span>
         </button>

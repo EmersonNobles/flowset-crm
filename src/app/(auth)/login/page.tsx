@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Loader2 } from "lucide-react"
 
+import { createClient } from "@/lib/supabase/client"
 import { AuthCard } from "@/components/crm/auth-card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -22,6 +23,7 @@ type FormData = z.infer<typeof schema>
 export default function LoginPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const {
     register,
@@ -29,9 +31,24 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) })
 
-  function onSubmit() {
+  async function onSubmit(data: FormData) {
     setLoading(true)
-    setTimeout(() => router.push("/dashboard"), 1500)
+    setError(null)
+
+    const supabase = createClient()
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
+    })
+
+    if (authError) {
+      setError("E-mail ou senha incorretos.")
+      setLoading(false)
+      return
+    }
+
+    router.push("/dashboard")
+    router.refresh()
   }
 
   return (
@@ -78,6 +95,10 @@ export default function LoginPage() {
             <p className="text-xs text-destructive">{errors.password.message}</p>
           )}
         </div>
+
+        {error && (
+          <p className="text-sm text-destructive text-center">{error}</p>
+        )}
 
         <Button type="submit" disabled={loading} className="w-full mt-1 h-9">
           {loading ? <Loader2 className="size-4 animate-spin" /> : "Entrar"}
