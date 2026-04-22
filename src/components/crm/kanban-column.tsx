@@ -2,9 +2,12 @@
 
 import { useDroppable } from "@dnd-kit/core"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import { Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { Deal, ColumnConfig } from "@/lib/mock/deals"
+import { STAGE_COLORS, type Deal, type ColumnConfig } from "@/lib/mock/deals"
 import { DealCard } from "./deal-card"
+
+const CHARTREUSE = "#CAFF33"
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -15,70 +18,69 @@ function formatCurrency(value: number): string {
   }).format(value)
 }
 
-const headerStyles: Record<ColumnConfig["variant"], string> = {
-  default: "bg-muted/50 border-border",
-  success: "bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-900",
-  danger:  "bg-slate-50 border-slate-200 dark:bg-slate-900/40 dark:border-slate-800",
-}
-
-const dotStyles: Record<ColumnConfig["variant"], string> = {
-  default: "bg-primary",
-  success: "bg-green-500",
-  danger:  "bg-slate-400",
-}
-
-const labelStyles: Record<ColumnConfig["variant"], string> = {
-  default: "text-foreground",
-  success: "text-green-800 dark:text-green-300",
-  danger:  "text-slate-500 dark:text-slate-400",
-}
-
-const columnStyles: Record<ColumnConfig["variant"], string> = {
-  default: "border-border",
-  success: "border-green-200 dark:border-green-900",
-  danger:  "border-slate-200 dark:border-slate-700",
-}
-
 interface KanbanColumnProps {
   column: ColumnConfig
   deals: Deal[]
   onCardClick: (deal: Deal) => void
+  onAddDeal: (stage: ColumnConfig["id"]) => void
 }
 
-export function KanbanColumn({ column, deals, onCardClick }: KanbanColumnProps) {
+export function KanbanColumn({ column, deals, onCardClick, onAddDeal }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id })
 
+  const stageHex = STAGE_COLORS[column.id].hex
   const totalValue = deals.reduce((sum, d) => sum + d.value, 0)
   const dealIds = deals.map((d) => d.id)
 
   return (
     <div
       className={cn(
-        "flex flex-col w-[272px] shrink-0 rounded-xl border bg-muted/20 overflow-hidden",
-        "transition-shadow duration-150",
-        columnStyles[column.variant],
-        isOver && "ring-2 ring-primary/25 shadow-md"
+        "flex flex-col w-[272px] shrink-0 rounded-xl border bg-card/50 overflow-hidden",
+        "transition-all duration-150"
       )}
+      style={{
+        borderColor: isOver ? CHARTREUSE : "rgb(255 255 255 / 0.08)",
+        boxShadow: isOver ? `0 0 0 1px ${CHARTREUSE}44` : undefined,
+      }}
     >
       {/* Column header */}
       <div
-        className={cn(
-          "flex items-center justify-between gap-2 px-3 py-2.5 border-b",
-          headerStyles[column.variant]
-        )}
+        className="flex items-center gap-2 px-3 py-2.5 border-b"
+        style={{
+          borderBottomColor: "rgb(255 255 255 / 0.07)",
+          borderTopWidth: 2,
+          borderTopStyle: "solid",
+          borderTopColor: stageHex,
+        }}
       >
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className={cn("size-1.5 rounded-full shrink-0", dotStyles[column.variant])} />
-          <span className={cn("text-xs font-semibold truncate", labelStyles[column.variant])}>
-            {column.label}
-          </span>
-          <span className="flex items-center justify-center rounded-full bg-foreground/10 text-[10px] font-bold px-1.5 min-w-[18px] h-[18px] tabular-nums shrink-0">
-            {deals.length}
-          </span>
-        </div>
-        <span className={cn("text-[11px] font-medium tabular-nums shrink-0 opacity-60", labelStyles[column.variant])}>
+        <span
+          className="text-xs font-display font-semibold flex-1 truncate"
+          style={{ color: stageHex }}
+        >
+          {column.label}
+        </span>
+
+        <span
+          className="flex items-center justify-center rounded text-[10px] font-bold px-1.5 min-w-[20px] h-5 tabular-nums"
+          style={{
+            backgroundColor: stageHex + "18",
+            color: stageHex,
+          }}
+        >
+          {deals.length}
+        </span>
+
+        <span className="text-[11px] font-mono text-muted-foreground tabular-nums">
           {formatCurrency(totalValue)}
         </span>
+
+        <button
+          onClick={() => onAddDeal(column.id)}
+          className="flex size-5 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground hover:bg-white/10 shrink-0"
+          title={`Novo deal em ${column.label}`}
+        >
+          <Plus className="size-3.5" />
+        </button>
       </div>
 
       {/* Cards area */}
@@ -93,8 +95,8 @@ export function KanbanColumn({ column, deals, onCardClick }: KanbanColumnProps) 
         </SortableContext>
 
         {deals.length === 0 && (
-          <div className="flex items-center justify-center h-16 rounded-lg border-2 border-dashed border-border/50">
-            <p className="text-[11px] text-muted-foreground/60">Arraste um deal aqui</p>
+          <div className="flex items-center justify-center h-16 rounded-lg border border-dashed border-white/10">
+            <p className="text-[11px] text-muted-foreground/40">Arraste um deal aqui</p>
           </div>
         )}
       </div>

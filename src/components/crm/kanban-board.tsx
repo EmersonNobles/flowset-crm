@@ -10,6 +10,7 @@ import {
   DragStartEvent,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   closestCorners,
   useSensor,
   useSensors,
@@ -19,12 +20,11 @@ import {
   arrayMove,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable"
-import { mockDeals, PIPELINE_COLUMNS, type Deal, type DealStage } from "@/lib/mock/deals"
+import { mockDeals, PIPELINE_COLUMNS, STAGE_COLORS, type Deal, type DealStage } from "@/lib/mock/deals"
 import { PageHeader } from "@/components/crm/page-header"
 import { Button } from "@/components/ui/button"
 import { KanbanColumn } from "./kanban-column"
-import { DealCard } from "./deal-card"
-import { CreateDealDialog } from "./create-deal-dialog"
+import { DealFormDialog } from "@/components/pipeline/deal-form-dialog"
 import { DealDetailSheet } from "./deal-detail-sheet"
 
 type ColumnMap = Record<DealStage, Deal[]>
@@ -51,10 +51,12 @@ export function KanbanBoard() {
   const [columns, setColumns] = useState<ColumnMap>(() => buildColumnMap(mockDeals))
   const [activeId, setActiveId] = useState<string | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
+  const [createStage, setCreateStage] = useState<DealStage>("novo_lead")
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
@@ -170,6 +172,7 @@ export function KanbanBoard() {
                   column={col}
                   deals={columns[col.id]}
                   onCardClick={setSelectedDeal}
+                  onAddDeal={(stage) => { setCreateStage(stage); setCreateOpen(true) }}
                 />
               </SortableContext>
             ))}
@@ -177,13 +180,29 @@ export function KanbanBoard() {
         </div>
 
         <DragOverlay dropAnimation={{ duration: 180, easing: "ease" }}>
-          {activeDeal && (
-            <DealCard deal={activeDeal} onCardClick={() => {}} isOverlay />
-          )}
+          {activeDeal && (() => {
+            const stageHex = STAGE_COLORS[activeDeal.stage].hex
+            return (
+              <div
+                className="bg-card border border-border/60 rounded-lg p-3 w-[272px] select-none cursor-grabbing"
+                style={{
+                  transform: "rotate(1.5deg) scale(1.04)",
+                  boxShadow: `0 20px 40px rgba(0,0,0,0.5), inset 0 2px 0 0 ${stageHex}`,
+                }}
+              >
+                <p className="text-xs font-semibold text-foreground leading-snug line-clamp-2 mb-2.5">
+                  {activeDeal.title}
+                </p>
+                <p className="font-mono text-sm font-semibold tabular-nums leading-none" style={{ color: stageHex }}>
+                  {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(activeDeal.value)}
+                </p>
+              </div>
+            )
+          })()}
         </DragOverlay>
       </DndContext>
 
-      <CreateDealDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <DealFormDialog open={createOpen} onOpenChange={setCreateOpen} initialStage={createStage} />
 
       <DealDetailSheet
         deal={selectedDeal}

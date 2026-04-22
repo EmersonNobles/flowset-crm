@@ -7,7 +7,7 @@ import { z } from "zod"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { PIPELINE_COLUMNS, OWNERS } from "@/lib/mock/deals"
+import { PIPELINE_COLUMNS, OWNERS, type DealStage } from "@/lib/mock/deals"
 import { mockLeads } from "@/lib/mock/leads"
 
 const dealSchema = z.object({
@@ -24,11 +24,12 @@ const dealSchema = z.object({
     "fechado_ganho",
     "fechado_perdido",
   ]),
+  notes: z.string().optional(),
 })
 
 type DealFormData = z.infer<typeof dealSchema>
 
-const inputClass = (hasError: boolean) =>
+const fieldClass = (hasError: boolean) =>
   cn(
     "h-8 w-full rounded-lg border bg-background px-2.5 text-sm text-foreground",
     "placeholder:text-muted-foreground outline-none focus:ring-3 focus:ring-ring/50 transition-all",
@@ -40,12 +41,13 @@ const selectClass = cn(
   "outline-none focus:border-ring focus:ring-3 focus:ring-ring/50 transition-all cursor-pointer"
 )
 
-interface CreateDealDialogProps {
+interface DealFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  initialStage?: DealStage
 }
 
-export function CreateDealDialog({ open, onOpenChange }: CreateDealDialogProps) {
+export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead" }: DealFormDialogProps) {
   const {
     register,
     handleSubmit,
@@ -59,13 +61,24 @@ export function CreateDealDialog({ open, onOpenChange }: CreateDealDialogProps) 
       leadId: "",
       owner: "",
       dueDate: "",
-      stage: "novo_lead",
+      stage: initialStage,
+      notes: "",
     },
   })
 
   useEffect(() => {
-    if (open) reset()
-  }, [open, reset])
+    if (open) {
+      reset({
+        title: "",
+        value: undefined,
+        leadId: "",
+        owner: "",
+        dueDate: "",
+        stage: initialStage,
+        notes: "",
+      })
+    }
+  }, [open, initialStage, reset])
 
   const onSubmit = async (data: DealFormData) => {
     await new Promise((r) => setTimeout(r, 400))
@@ -78,16 +91,16 @@ export function CreateDealDialog({ open, onOpenChange }: CreateDealDialogProps) 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
         onClick={() => onOpenChange(false)}
       />
-      <div className="relative z-50 w-full max-w-md mx-4 bg-background rounded-xl shadow-xl border border-border max-h-[90vh] flex flex-col">
+      <div className="relative z-50 w-full max-w-md mx-4 bg-card rounded-xl shadow-2xl border border-border/60 max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-          <h2 className="text-base font-semibold text-foreground">Novo Deal</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border/60 shrink-0">
+          <h2 className="font-display text-base font-semibold text-foreground">Novo Negócio</h2>
           <button
             onClick={() => onOpenChange(false)}
-            className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-white/10 hover:text-foreground transition-colors"
           >
             <X className="size-4" />
           </button>
@@ -102,30 +115,26 @@ export function CreateDealDialog({ open, onOpenChange }: CreateDealDialogProps) 
               </label>
               <input
                 {...register("title")}
-                className={inputClass(!!errors.title)}
+                className={fieldClass(!!errors.title)}
                 placeholder="Ex: Licença Enterprise — Empresa X"
               />
-              {errors.title && (
-                <p className="text-xs text-destructive">{errors.title.message}</p>
-              )}
+              {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
             </div>
 
             {/* Value + Stage */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-foreground">
-                  Valor (R$) <span className="text-destructive">*</span>
+                  Valor estimado (R$) <span className="text-destructive">*</span>
                 </label>
                 <input
                   {...register("value", { valueAsNumber: true })}
                   type="number"
                   min="1"
-                  className={inputClass(!!errors.value)}
+                  className={fieldClass(!!errors.value)}
                   placeholder="0"
                 />
-                {errors.value && (
-                  <p className="text-xs text-destructive">{errors.value.message}</p>
-                )}
+                {errors.value && <p className="text-xs text-destructive">{errors.value.message}</p>}
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-foreground">
@@ -144,7 +153,7 @@ export function CreateDealDialog({ open, onOpenChange }: CreateDealDialogProps) 
             {/* Lead */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground">
-                Lead <span className="text-destructive">*</span>
+                Lead vinculado <span className="text-destructive">*</span>
               </label>
               <select {...register("leadId")} className={selectClass}>
                 <option value="">Selecione um lead</option>
@@ -154,52 +163,54 @@ export function CreateDealDialog({ open, onOpenChange }: CreateDealDialogProps) 
                   </option>
                 ))}
               </select>
-              {errors.leadId && (
-                <p className="text-xs text-destructive">{errors.leadId.message}</p>
-              )}
+              {errors.leadId && <p className="text-xs text-destructive">{errors.leadId.message}</p>}
             </div>
 
             {/* Owner + Due date */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">
-                  Responsável <span className="text-destructive">*</span>
-                </label>
+                <label className="text-sm font-medium text-foreground">Responsável</label>
                 <select {...register("owner")} className={selectClass}>
                   <option value="">Selecione</option>
-                  {OWNERS.map((owner) => (
-                    <option key={owner} value={owner}>
-                      {owner}
-                    </option>
+                  {OWNERS.map((o) => (
+                    <option key={o} value={o}>{o}</option>
                   ))}
                 </select>
-                {errors.owner && (
-                  <p className="text-xs text-destructive">{errors.owner.message}</p>
-                )}
+                {errors.owner && <p className="text-xs text-destructive">{errors.owner.message}</p>}
               </div>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">
-                  Prazo <span className="text-destructive">*</span>
-                </label>
+                <label className="text-sm font-medium text-foreground">Prazo</label>
                 <input
                   {...register("dueDate")}
                   type="date"
-                  className={inputClass(!!errors.dueDate)}
+                  className={fieldClass(!!errors.dueDate)}
                 />
-                {errors.dueDate && (
-                  <p className="text-xs text-destructive">{errors.dueDate.message}</p>
-                )}
+                {errors.dueDate && <p className="text-xs text-destructive">{errors.dueDate.message}</p>}
               </div>
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Observações</label>
+              <textarea
+                {...register("notes")}
+                rows={3}
+                className={cn(
+                  fieldClass(false),
+                  "h-auto resize-none py-2 leading-relaxed"
+                )}
+                placeholder="Contexto, detalhes relevantes..."
+              />
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end gap-2 px-6 py-4 border-t border-border shrink-0">
+          <div className="flex justify-end gap-2 px-6 py-4 border-t border-border/60 shrink-0">
             <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Criando..." : "Criar Deal"}
+              {isSubmitting ? "Criando..." : "Criar Negócio"}
             </Button>
           </div>
         </form>
