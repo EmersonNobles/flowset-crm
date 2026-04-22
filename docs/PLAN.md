@@ -154,17 +154,20 @@ feat(brand): identidade visual v2 — fontes, stage colors e pipeline redesign
 **Objetivo:** Dashboard com todos os cards e gráficos preenchidos com dados mock, prontos para receber dados reais na Fase 4.
 
 **Entregas:**
-- [ ] Instalar `recharts`
-- [ ] Tela `/dashboard` como página inicial da área autenticada
-- [ ] Componente `MetricCard` — ícone, label, valor principal, variação percentual (↑↓)
-- [ ] 4 cards de métricas: Total de Leads, Negócios Abertos, Valor do Pipeline (R$), Taxa de Conversão (%)
-- [ ] Gráfico de funil de vendas com Recharts (FunnelChart ou BarChart horizontal) com dados mock
-- [ ] Seção "Negócios com Prazo Próximo" — lista de até 5 deals com data e responsável
-- [ ] Seletor de período (Esta semana / Este mês / Este trimestre) — visual apenas
+- [x] Instalar `recharts`
+- [x] Tela `/dashboard` como página inicial da área autenticada
+- [x] Componente `MetricCard` — ícone, label, valor principal, variação percentual (↑↓)
+- [x] 4 cards de métricas: Total de Leads, Negócios Abertos, Valor do Pipeline (R$), Taxa de Conversão (%)
+- [x] Gráfico de funil de vendas com Recharts (BarChart vertical, barras coloridas por stage, tooltip com contagem e valor total)
+- [x] Seção "Prazos Próximos" — tabela com colunas Negócio / Lead / Etapa / Prazo / Valor, deals vencidos em vermelho, clique no negócio vai para `/pipeline`
+- [x] Seletor de período (Esta semana / Este mês / Este trimestre) — visual apenas
 
-**Commit final:**
+**Commits:**
 ```
 feat: dashboard de métricas (UI) — cards, gráfico de funil e deals próximos
+refactor(dashboard): gráfico com barras verticais full-width, prazos abaixo
+feat(dashboard): labels horizontais, tooltip com valor por etapa e tabela de prazos
+feat(dashboard): link no nome do negócio direciona para /pipeline
 ```
 
 ---
