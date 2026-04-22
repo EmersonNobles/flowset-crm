@@ -22,12 +22,13 @@ export default function DashboardPage() {
     Math.round((wonDeals.length / mockDeals.length) * 1000) / 10
 
   const funnelData: FunnelDataPoint[] = PIPELINE_COLUMNS.map((col) => {
-    const count = mockDeals.filter((d) => d.stage === col.id).length
+    const stageDeals = mockDeals.filter((d) => d.stage === col.id)
     return {
       label: col.label,
-      count,
+      count: stageDeals.length,
       color: STAGE_COLORS[col.id].hex,
-      percent: Math.round((count / mockDeals.length) * 100),
+      percent: Math.round((stageDeals.length / mockDeals.length) * 100),
+      totalValue: stageDeals.reduce((sum, d) => sum + d.value, 0),
     }
   })
 

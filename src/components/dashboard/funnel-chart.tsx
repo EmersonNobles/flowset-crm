@@ -15,6 +15,7 @@ export type FunnelDataPoint = {
   count: number
   color: string
   percent: number
+  totalValue: number
 }
 
 type CustomTooltipProps = {
@@ -22,14 +23,23 @@ type CustomTooltipProps = {
   payload?: Array<{ value: number; payload: FunnelDataPoint }>
 }
 
+function formatBRLShort(value: number): string {
+  if (value >= 1_000_000) return `R$ ${(value / 1_000_000).toFixed(1).replace(".", ",")} mi`
+  if (value >= 1_000) return `R$ ${Math.round(value / 1_000)} mil`
+  return `R$ ${value}`
+}
+
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
   if (!active || !payload?.length) return null
   const d = payload[0]
   return (
-    <div className="rounded-lg bg-popover px-3 py-2 text-xs text-popover-foreground shadow ring-1 ring-foreground/10">
-      <p className="font-medium">{d.payload.label}</p>
-      <p className="mt-0.5 text-muted-foreground">
-        {d.value} negócio{d.value !== 1 ? "s" : ""} · {d.payload.percent}% do total
+    <div className="rounded-lg bg-popover px-3 py-2.5 text-xs text-popover-foreground shadow-lg ring-1 ring-foreground/10">
+      <p className="font-semibold">{d.payload.label}</p>
+      <p className="mt-1 text-muted-foreground">
+        {d.value} negócio{d.value !== 1 ? "s" : ""}
+      </p>
+      <p className="text-muted-foreground">
+        Valor: <span className="font-medium text-foreground">{formatBRLShort(d.payload.totalValue)}</span>
       </p>
     </div>
   )
@@ -45,7 +55,7 @@ export function FunnelChart({ data }: FunnelChartProps) {
       <BarChart
         data={data}
         barCategoryGap="28%"
-        margin={{ top: 8, right: 8, bottom: 56, left: 0 }}
+        margin={{ top: 8, right: 8, bottom: 32, left: 0 }}
       >
         <XAxis
           type="category"
@@ -53,8 +63,6 @@ export function FunnelChart({ data }: FunnelChartProps) {
           tick={{ fontSize: 11, fill: "#94a3b8" }}
           axisLine={false}
           tickLine={false}
-          angle={-30}
-          textAnchor="end"
           interval={0}
         />
         <YAxis
