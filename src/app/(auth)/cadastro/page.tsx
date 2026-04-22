@@ -2,12 +2,12 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Loader2 } from "lucide-react"
+import { Loader2, MailCheck } from "lucide-react"
 
+import { createClient } from "@/lib/supabase/client"
 import { AuthCard } from "@/components/crm/auth-card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -30,8 +30,10 @@ const inputBase =
   "w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
 
 export default function CadastroPage() {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [sent, setSent] = useState(false)
+  const [sentEmail, setSentEmail] = useState("")
 
   const {
     register,
@@ -39,9 +41,53 @@ export default function CadastroPage() {
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) })
 
-  function onSubmit() {
+  async function onSubmit(data: FormData) {
     setLoading(true)
-    setTimeout(() => router.push("/dashboard"), 1500)
+    setError(null)
+
+    const supabase = createClient()
+    const { error: authError } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        data: { name: data.name },
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      },
+    })
+
+    if (authError) {
+      setError(authError.message)
+      setLoading(false)
+      return
+    }
+
+    setSentEmail(data.email)
+    setLoading(false)
+    setSent(true)
+  }
+
+  if (sent) {
+    return (
+      <AuthCard title="Confirme seu e-mail" description="Quase lá!">
+        <div className="flex flex-col items-center gap-3 py-2 text-center">
+          <div className="flex items-center justify-center size-12 rounded-full bg-primary/10">
+            <MailCheck className="size-6 text-primary" />
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Enviamos um link de confirmação para{" "}
+            <span className="font-medium text-foreground">{sentEmail}</span>.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Clique no link para ativar sua conta. Não recebeu? Verifique a pasta de spam.
+          </p>
+        </div>
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          <Link href="/login" className="text-primary font-medium hover:underline">
+            Ir para o login
+          </Link>
+        </p>
+      </AuthCard>
+    )
   }
 
   return (
@@ -96,6 +142,10 @@ export default function CadastroPage() {
             <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
           )}
         </div>
+
+        {error && (
+          <p className="text-sm text-destructive text-center">{error}</p>
+        )}
 
         <Button type="submit" disabled={loading} className="w-full mt-1 h-9">
           {loading ? <Loader2 className="size-4 animate-spin" /> : "Criar conta"}

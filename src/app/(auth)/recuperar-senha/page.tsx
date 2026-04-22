@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Loader2, MailCheck } from "lucide-react"
 
+import { createClient } from "@/lib/supabase/client"
 import { AuthCard } from "@/components/crm/auth-card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -19,6 +20,7 @@ type FormData = z.infer<typeof schema>
 
 export default function RecuperarSenhaPage() {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
 
   const {
@@ -28,12 +30,26 @@ export default function RecuperarSenhaPage() {
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) })
 
-  function onSubmit() {
+  async function onSubmit(data: FormData) {
     setLoading(true)
-    setTimeout(() => {
+    setError(null)
+
+    const supabase = createClient()
+    const { error: authError } = await supabase.auth.resetPasswordForEmail(
+      data.email,
+      {
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/settings/password`,
+      }
+    )
+
+    if (authError) {
+      setError(authError.message)
       setLoading(false)
-      setSent(true)
-    }, 1500)
+      return
+    }
+
+    setLoading(false)
+    setSent(true)
   }
 
   if (sent) {
@@ -80,6 +96,10 @@ export default function RecuperarSenhaPage() {
             <p className="text-xs text-destructive">{errors.email.message}</p>
           )}
         </div>
+
+        {error && (
+          <p className="text-sm text-destructive text-center">{error}</p>
+        )}
 
         <Button type="submit" disabled={loading} className="w-full mt-1 h-9">
           {loading ? <Loader2 className="size-4 animate-spin" /> : "Enviar link"}
