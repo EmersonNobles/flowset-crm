@@ -127,15 +127,15 @@ feat: gestão de leads (UI) — listagem, filtros, detalhe e modal de criação
 **Objetivo:** Board Kanban visual e funcional com drag-and-drop entre colunas, usando dados mock. A lógica de persistência vem na Fase 4.
 
 **Entregas:**
-- [ ] Instalar `@dnd-kit/core` e `@dnd-kit/sortable`
-- [ ] Criar mock data de deals em `src/lib/mock-data.ts`
-- [ ] Tela `/pipeline` — board horizontal com 6 colunas: Novo Lead, Contato Realizado, Proposta Enviada, Negociação, Fechado Ganho, Fechado Perdido
-- [ ] Componente `KanbanColumn` — cabeçalho com nome da etapa + contador de cards + valor total
-- [ ] Componente `DealCard` — título do negócio, valor (R$), nome do lead, responsável (avatar), prazo
-- [ ] Drag-and-drop funcional entre colunas (movimenta o card visualmente, sem persistir)
-- [ ] Modal `CreateDealDialog` — campos: título, valor, lead vinculado, responsável, prazo, etapa inicial
-- [ ] Sidebar deslizante `DealDetailSheet` ao clicar no card — exibe todos os dados do deal
-- [ ] Coluna "Fechado Ganho" com cor verde; "Fechado Perdido" com cor cinza/vermelho
+- [x] Instalar `@dnd-kit/core` e `@dnd-kit/sortable`
+- [x] Criar mock data de deals em `src/lib/mock/deals.ts`
+- [x] Tela `/pipeline` — board horizontal com 6 colunas: Novo Lead, Contato Realizado, Proposta Enviada, Negociação, Fechado Ganho, Fechado Perdido
+- [x] Componente `KanbanColumn` — cabeçalho com nome da etapa + contador de cards + valor total
+- [x] Componente `DealCard` — título do negócio, valor (R$), nome do lead, responsável (avatar), prazo
+- [x] Drag-and-drop funcional entre colunas (movimenta o card visualmente, sem persistir)
+- [x] Modal `CreateDealDialog` — campos: título, valor, lead vinculado, responsável, prazo, etapa inicial
+- [x] Sidebar deslizante `DealDetailSheet` ao clicar no card — exibe todos os dados do deal
+- [x] Coluna "Fechado Ganho" com cor verde; "Fechado Perdido" com cor cinza/vermelho
 
 **Commit final:**
 ```
