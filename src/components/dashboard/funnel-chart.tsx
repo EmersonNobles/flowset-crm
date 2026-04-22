@@ -41,26 +41,34 @@ type FunnelChartProps = {
 
 export function FunnelChart({ data }: FunnelChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={280}>
+    <ResponsiveContainer width="100%" height={260}>
       <BarChart
         data={data}
-        layout="vertical"
         barCategoryGap="28%"
-        margin={{ top: 0, right: 16, bottom: 0, left: 0 }}
+        margin={{ top: 8, right: 8, bottom: 56, left: 0 }}
       >
-        <XAxis type="number" hide />
-        <YAxis
+        <XAxis
           type="category"
           dataKey="label"
-          width={148}
-          tick={{ fontSize: 12, fill: "#94a3b8" }}
+          tick={{ fontSize: 11, fill: "#94a3b8" }}
           axisLine={false}
           tickLine={false}
+          angle={-30}
+          textAnchor="end"
+          interval={0}
         />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: "transparent" }} />
-        <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+        <YAxis
+          type="number"
+          allowDecimals={false}
+          tick={{ fontSize: 11, fill: "#94a3b8" }}
+          axisLine={false}
+          tickLine={false}
+          width={24}
+        />
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+        <Bar dataKey="count" radius={[4, 4, 0, 0]}>
           {data.map((entry, index) => (
-            <Cell key={index} fill={entry.color} fillOpacity={0.8} />
+            <Cell key={index} fill={entry.color} fillOpacity={0.85} />
           ))}
         </Bar>
       </BarChart>

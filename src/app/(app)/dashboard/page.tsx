@@ -82,8 +82,8 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+      <div className="mt-4 flex flex-col gap-4">
+        <Card>
           <CardHeader>
             <CardTitle className="text-sm font-semibold">
               Funil de Vendas

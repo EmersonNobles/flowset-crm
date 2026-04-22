@@ -12,19 +12,17 @@ type UpcomingDealsProps = {
 
 export function UpcomingDeals({ deals, today }: UpcomingDealsProps) {
   return (
-    <Card className="flex flex-col">
+    <Card>
       <CardHeader>
-        <CardTitle className="font-display text-sm font-semibold">
-          Prazos Próximos
-        </CardTitle>
+        <CardTitle className="text-sm font-semibold">Prazos Próximos</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1">
+      <CardContent>
         {deals.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             Nenhum negócio com prazo próximo.
           </p>
         ) : (
-          <ul className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {deals.map((deal) => {
               const overdue = deal.dueDate < today
               const stage = STAGE_COLORS[deal.stage]
@@ -34,45 +32,47 @@ export function UpcomingDeals({ deals, today }: UpcomingDealsProps) {
               )
 
               return (
-                <li key={deal.id} className="flex items-start gap-3">
-                  <div
-                    className="mt-1.5 size-2 shrink-0 rounded-full"
-                    style={{ backgroundColor: stage.hex }}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium leading-snug">
-                      {deal.title}
-                    </p>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <User className="size-3" />
-                        {deal.owner}
-                      </span>
-                      <span
-                        className={cn(
-                          "flex items-center gap-1",
-                          overdue && "font-medium text-red-500"
-                        )}
-                      >
-                        <Calendar className="size-3" />
-                        {dateLabel}
-                        {overdue && " · Vencido"}
-                      </span>
-                    </div>
+                <div
+                  key={deal.id}
+                  className="flex flex-col gap-2 rounded-lg border border-border/60 p-3"
+                  style={{ borderTopColor: stage.hex, borderTopWidth: 2 }}
+                >
+                  <p className="line-clamp-2 text-xs font-semibold leading-snug">
+                    {deal.title}
+                  </p>
+
+                  <div className="mt-auto flex flex-col gap-1">
+                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <User className="size-3 shrink-0" />
+                      {deal.owner}
+                    </span>
+                    <span
+                      className={cn(
+                        "flex items-center gap-1 text-[11px]",
+                        overdue
+                          ? "font-semibold text-red-500"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      <Calendar className="size-3 shrink-0" />
+                      {dateLabel}
+                      {overdue && " · Vencido"}
+                    </span>
                   </div>
+
                   <span
-                    className="mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none"
+                    className="w-fit rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none"
                     style={{
                       backgroundColor: stage.hex + "22",
                       color: stage.hex,
                     }}
                   >
-                    {stage.label.split(" ")[0]}
+                    {stage.label}
                   </span>
-                </li>
+                </div>
               )
             })}
-          </ul>
+          </div>
         )}
       </CardContent>
     </Card>
