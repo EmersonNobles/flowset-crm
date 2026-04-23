@@ -1,21 +1,52 @@
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
-import { mockLeads, mockActivities } from "@/lib/mock/leads"
+import { adminClient } from "@/lib/supabase/admin"
+import { getUserWorkspaces, getActiveWorkspaceId } from "@/lib/supabase/workspace"
 import { LeadProfileCard } from "@/components/leads/lead-profile-card"
 import { ActivityTimeline } from "@/components/leads/activity-timeline"
+import type { LeadRow, ActivityRow } from "@/types/leads"
 
 interface LeadDetailPageProps {
   params: { id: string }
 }
 
-export default function LeadDetailPage({ params }: LeadDetailPageProps) {
-  const lead = mockLeads.find((l) => l.id === params.id)
-  if (!lead) notFound()
+export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
+  const workspaces = await getUserWorkspaces()
+  const workspaceId = getActiveWorkspaceId(workspaces)
+  if (!workspaceId) redirect("/onboarding/workspace")
 
-  const activities = mockActivities
-    .filter((a) => a.leadId === params.id)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  const [{ data: leadData }, { data: activitiesData }] = await Promise.all([
+    adminClient
+      .from("leads")
+      .select("*")
+      .eq("id", params.id)
+      .eq("workspace_id", workspaceId)
+      .maybeSingle(),
+    adminClient
+      .from("activities")
+      .select("*")
+      .eq("lead_id", params.id)
+      .eq("workspace_id", workspaceId)
+      .order("created_at", { ascending: false }),
+  ])
+
+  if (!leadData) notFound()
+
+  const { data: { users } } = await adminClient.auth.admin.listUsers()
+  const userEmailMap = new Map(users.map((u) => [u.id, u.email ?? u.id]))
+
+  const lead: LeadRow = {
+    ...leadData,
+    status: leadData.status as LeadRow["status"],
+    owner_email: leadData.owner_id ? (userEmailMap.get(leadData.owner_id) ?? null) : null,
+  }
+
+  const activities: ActivityRow[] = (activitiesData ?? []).map((a) => ({
+    ...a,
+    type: a.type as ActivityRow["type"],
+    author_email: a.author_id ? (userEmailMap.get(a.author_id) ?? null) : null,
+  }))
 
   return (
     <div className="space-y-6">

@@ -262,13 +262,13 @@ feat: multi-empresa — criar workspace, convidar membros via Resend e alternar 
 **Objetivo:** Substituir mock data de leads por dados reais do Supabase, com CRUD completo.
 
 **Entregas:**
-- [ ] Server Component em `/leads` fazendo `select` na tabela `leads` com filtro por `workspace_id`
-- [ ] Server Action `createLead` — insere lead e revalida cache
-- [ ] Server Action `updateLead` — atualiza campos e revalida
-- [ ] Server Action `deleteLead` — exclui com soft-delete (campo `deleted_at`)
-- [ ] Busca e filtros conectados como search params na URL (`?q=&status=&owner=`)
-- [ ] Tela `/leads/[id]` carregando dados reais do lead pelo `id`
-- [ ] Remoção de `src/lib/mock-data.ts` de leads (ou marcar como depreciado)
+- [x] Server Component em `/leads` fazendo `select` na tabela `leads` com filtro por `workspace_id`
+- [x] Server Action `createLead` — insere lead e revalida cache
+- [x] Server Action `updateLead` — atualiza campos e revalida
+- [x] Server Action `deleteLead` — remove lead do workspace
+- [x] Busca e filtros conectados como search params na URL (`?q=&status=&owner=`)
+- [x] Tela `/leads/[id]` carregando dados reais do lead pelo `id`
+- [x] Tipos migrados de `src/lib/mock/leads.ts` para `src/types/leads.ts`
 
 **Commit final:**
 ```

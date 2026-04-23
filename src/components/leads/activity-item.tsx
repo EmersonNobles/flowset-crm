@@ -1,6 +1,6 @@
 import { Phone, Mail, Calendar, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { Activity, ActivityType } from "@/lib/mock/leads"
+import type { ActivityRow, ActivityType } from "@/types/leads"
 
 const typeConfig: Record<
   ActivityType,
@@ -49,7 +49,7 @@ function formatRelativeDate(dateString: string): string {
 }
 
 interface ActivityItemProps {
-  activity: Activity
+  activity: ActivityRow
   isLast?: boolean
 }
 
@@ -74,9 +74,9 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
         <div className="flex flex-wrap items-center gap-1.5 mb-1">
           <span className="text-sm font-medium text-foreground">{config.label}</span>
           <span className="text-xs text-muted-foreground">·</span>
-          <span className="text-xs text-muted-foreground">{activity.author}</span>
+          <span className="text-xs text-muted-foreground">{activity.author_email ?? "—"}</span>
           <span className="text-xs text-muted-foreground">·</span>
-          <span className="text-xs text-muted-foreground">{formatRelativeDate(activity.createdAt)}</span>
+          <span className="text-xs text-muted-foreground">{formatRelativeDate(activity.created_at)}</span>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">{activity.description}</p>
       </div>

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import type { LeadStatus } from "@/lib/mock/leads"
+import type { LeadStatus } from "@/types/leads"
 
 const statusConfig: Record<LeadStatus, { label: string; className: string }> = {
   novo: {
