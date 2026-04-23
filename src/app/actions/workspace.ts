@@ -10,11 +10,22 @@ import { WORKSPACE_COOKIE, getActiveMemberCount, getMyRole } from "@/lib/supabas
 
 const FREE_MEMBER_LIMIT = 2
 
+// ── helpers internos ───────────────────────────────────────────────
+
+async function getAuthUser() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user
+}
+
 // ── Criar workspace ────────────────────────────────────────────────
 
 export async function createWorkspace(formData: FormData) {
   const name = (formData.get("name") as string)?.trim()
   if (!name || name.length < 2) return { error: "Nome deve ter ao menos 2 caracteres" }
+
+  const user = await getAuthUser()
+  if (!user) redirect("/login")
 
   const slug = name
     .toLowerCase()
@@ -22,31 +33,33 @@ export async function createWorkspace(formData: FormData) {
     .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
-    .slice(0, 48)
+    .slice(0, 48) || "workspace"
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect("/login")
-
-  const { data: workspace, error: wsError } = await supabase
+  const { data: workspace, error: wsError } = await adminClient
     .from("workspaces")
     .insert({ name, slug: `${slug}-${Date.now().toString(36)}`, plan: "free" })
     .select("id")
     .single()
 
-  if (wsError || !workspace) return { error: "Erro ao criar workspace. Tente novamente." }
+  if (wsError || !workspace) {
+    console.error("[createWorkspace] wsError:", wsError)
+    return { error: `Erro ao criar workspace: ${wsError?.message ?? "resposta vazia"}` }
+  }
 
-  const { error: memberError } = await supabase
+  const { error: memberError } = await adminClient
     .from("workspace_members")
     .insert({
-      workspace_id: workspace.id,
-      user_id: user.id,
-      role: "admin",
-      status: "active",
+      workspace_id:  workspace.id,
+      user_id:       user.id,
+      role:          "admin",
+      status:        "active",
       invited_email: user.email,
     })
 
-  if (memberError) return { error: "Erro ao configurar permissões." }
+  if (memberError) {
+    console.error("[createWorkspace] memberError:", memberError)
+    return { error: `Erro ao configurar permissões: ${memberError.message}` }
+  }
 
   cookies().set(WORKSPACE_COOKIE, workspace.id, { path: "/", maxAge: 60 * 60 * 24 * 365 })
   redirect("/dashboard")
@@ -55,17 +68,16 @@ export async function createWorkspace(formData: FormData) {
 // ── Trocar workspace ───────────────────────────────────────────────
 
 export async function switchWorkspace(workspaceId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) redirect("/login")
 
-  const { data } = await supabase
+  const { data } = await adminClient
     .from("workspace_members")
     .select("id")
     .eq("workspace_id", workspaceId)
     .eq("user_id", user.id)
     .eq("status", "active")
-    .single()
+    .maybeSingle()
 
   if (!data) return { error: "Workspace não encontrado." }
 
@@ -83,16 +95,13 @@ export async function inviteMember(formData: FormData) {
   if (!email || !workspaceId) return { error: "Dados inválidos." }
   if (!["admin", "member"].includes(role)) return { error: "Papel inválido." }
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) redirect("/login")
 
-  // Verificar se o usuário atual é admin
   const myRole = await getMyRole(workspaceId)
   if (myRole !== "admin") return { error: "Apenas administradores podem convidar membros." }
 
-  // Verificar limite do plano Free
-  const { data: workspace } = await supabase
+  const { data: workspace } = await adminClient
     .from("workspaces")
     .select("name, plan")
     .eq("id", workspaceId)
@@ -109,8 +118,7 @@ export async function inviteMember(formData: FormData) {
     }
   }
 
-  // Verificar se já é membro ativo
-  const { data: existing } = await supabase
+  const { data: existing } = await adminClient
     .from("workspace_members")
     .select("id")
     .eq("workspace_id", workspaceId)
@@ -120,8 +128,7 @@ export async function inviteMember(formData: FormData) {
 
   if (existing) return { error: "Este e-mail já é membro do workspace." }
 
-  // Verificar convite pendente
-  const { data: pendingInvite } = await supabase
+  const { data: pendingInvite } = await adminClient
     .from("workspace_invites")
     .select("id")
     .eq("workspace_id", workspaceId)
@@ -132,27 +139,25 @@ export async function inviteMember(formData: FormData) {
 
   if (pendingInvite) return { error: "Já existe um convite pendente para este e-mail." }
 
-  // Criar convite
   const token = crypto.randomUUID()
-  const { error: inviteError } = await supabase
+  const { error: inviteError } = await adminClient
     .from("workspace_invites")
     .insert({
       workspace_id:  workspaceId,
       invited_email: email,
       role,
       token,
-      invited_by: user.id,
+      invited_by:    user.id,
     })
 
   if (inviteError) return { error: "Erro ao criar convite." }
 
-  // Enviar e-mail
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
   await sendInviteEmail({
-    to:            email,
-    workspaceName: workspace.name,
+    to:             email,
+    workspaceName:  workspace.name,
     invitedByEmail: user.email ?? "um administrador",
-    acceptUrl:     `${appUrl}/invite/${token}`,
+    acceptUrl:      `${appUrl}/invite/${token}`,
     role,
   })
 
@@ -166,15 +171,13 @@ export async function removeMember(formData: FormData) {
   const workspaceId = formData.get("workspace_id") as string
   const memberId    = formData.get("member_id")    as string
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) redirect("/login")
 
   const myRole = await getMyRole(workspaceId)
   if (myRole !== "admin") return { error: "Apenas administradores podem remover membros." }
 
-  // Não pode remover a si mesmo se for o único admin
-  const { data: target } = await supabase
+  const { data: target } = await adminClient
     .from("workspace_members")
     .select("user_id, role")
     .eq("id", memberId)
@@ -183,7 +186,7 @@ export async function removeMember(formData: FormData) {
   if (!target) return { error: "Membro não encontrado." }
   if (target.user_id === user.id) return { error: "Você não pode remover a si mesmo." }
 
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await adminClient
     .from("workspace_members")
     .delete()
     .eq("id", memberId)
@@ -201,14 +204,13 @@ export async function revokeInvite(formData: FormData) {
   const workspaceId = formData.get("workspace_id") as string
   const inviteId    = formData.get("invite_id")    as string
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) redirect("/login")
 
   const myRole = await getMyRole(workspaceId)
   if (myRole !== "admin") return { error: "Apenas administradores podem revogar convites." }
 
-  await supabase
+  await adminClient
     .from("workspace_invites")
     .delete()
     .eq("id", inviteId)
@@ -221,11 +223,9 @@ export async function revokeInvite(formData: FormData) {
 // ── Aceitar convite ────────────────────────────────────────────────
 
 export async function acceptInvite(token: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   if (!user) redirect(`/login?next=/invite/${token}`)
 
-  // Buscar o convite via admin client (bypassa RLS — usuário ainda não é membro)
   const { data: invite, error } = await adminClient
     .from("workspace_invites")
     .select("id, workspace_id, invited_email, role, expires_at, used_at")
@@ -236,7 +236,6 @@ export async function acceptInvite(token: string) {
   if (invite.used_at) redirect("/dashboard?invite=used")
   if (new Date(invite.expires_at) < new Date()) redirect("/dashboard?invite=expired")
 
-  // Verificar se já é membro
   const { data: alreadyMember } = await adminClient
     .from("workspace_members")
     .select("id")
@@ -255,13 +254,11 @@ export async function acceptInvite(token: string) {
     })
   }
 
-  // Marcar convite como usado
   await adminClient
     .from("workspace_invites")
     .update({ used_at: new Date().toISOString() })
     .eq("id", invite.id)
 
-  // Ativar o workspace aceito
   cookies().set(WORKSPACE_COOKIE, invite.workspace_id, { path: "/", maxAge: 60 * 60 * 24 * 365 })
   redirect("/dashboard?invite=accepted")
 }

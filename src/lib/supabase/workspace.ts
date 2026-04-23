@@ -1,5 +1,6 @@
 import { cookies } from "next/headers"
 import { createClient } from "@/lib/supabase/server"
+import { adminClient } from "@/lib/supabase/admin"
 
 export const WORKSPACE_COOKIE = "active_workspace_id"
 
@@ -10,21 +11,16 @@ export type WorkspaceBasic = {
   plan: string
 }
 
-export type MemberWithEmail = {
-  id: string
-  user_id: string | null
-  invited_email: string | null
-  role: string
-  status: string
-  created_at: string
-}
-
 /** Todos os workspaces do usuário autenticado (membro ativo). */
 export async function getUserWorkspaces(): Promise<WorkspaceBasic[]> {
   const supabase = await createClient()
-  const { data } = await supabase
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data } = await adminClient
     .from("workspace_members")
     .select("workspaces(id, name, slug, plan)")
+    .eq("user_id", user.id)
     .eq("status", "active")
 
   if (!data) return []
@@ -48,21 +44,20 @@ export async function getMyRole(workspaceId: string): Promise<"admin" | "member"
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const { data } = await supabase
+  const { data } = await adminClient
     .from("workspace_members")
     .select("role")
     .eq("workspace_id", workspaceId)
     .eq("user_id", user.id)
     .eq("status", "active")
-    .single()
+    .maybeSingle()
 
   return (data?.role as "admin" | "member") ?? null
 }
 
 /** Contagem de membros ativos no workspace (para limite do plano Free). */
 export async function getActiveMemberCount(workspaceId: string): Promise<number> {
-  const supabase = await createClient()
-  const { count } = await supabase
+  const { count } = await adminClient
     .from("workspace_members")
     .select("id", { count: "exact", head: true })
     .eq("workspace_id", workspaceId)

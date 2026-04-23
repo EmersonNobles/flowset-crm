@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { adminClient } from "@/lib/supabase/admin"
 import { getUserWorkspaces, getActiveWorkspaceId, getMyRole, getActiveMemberCount } from "@/lib/supabase/workspace"
 import { PageHeader } from "@/components/crm/page-header"
 import { InviteForm } from "./invite-form"
@@ -23,7 +24,7 @@ export default async function TeamPage() {
   const isAdmin = myRole === "admin"
 
   // Membros ativos
-  const { data: members } = await supabase
+  const { data: members } = await adminClient
     .from("workspace_members")
     .select("id, user_id, invited_email, role, status, created_at")
     .eq("workspace_id", workspaceId)
@@ -31,7 +32,7 @@ export default async function TeamPage() {
     .order("created_at", { ascending: true })
 
   // Convites pendentes
-  const { data: invites } = await supabase
+  const { data: invites } = await adminClient
     .from("workspace_invites")
     .select("id, invited_email, role, expires_at, created_at")
     .eq("workspace_id", workspaceId)
