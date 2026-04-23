@@ -12,10 +12,10 @@ export async function sendInviteEmail({
   invitedByEmail: string
   acceptUrl: string
   role: string
-}) {
+}): Promise<{ error: string } | null> {
   if (!process.env.RESEND_API_KEY) {
     console.warn("[resend] RESEND_API_KEY não configurada — e-mail não enviado")
-    return
+    return { error: "RESEND_API_KEY não configurada" }
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY)
@@ -75,5 +75,8 @@ export async function sendInviteEmail({
 
   if (error) {
     console.error("[sendInviteEmail] Resend error:", error)
+    return { error: error.message }
   }
+
+  return null
 }

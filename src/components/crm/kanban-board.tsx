@@ -74,19 +74,19 @@ export function KanbanBoard() {
     const activeId = active.id as string
     const overId = over.id as string
 
-    const sourceStage = findDealStage(columns, activeId)
-    if (!sourceStage) return
-
-    // Determine target stage: either a column id or the stage of the hovered deal
-    const destStage = isDealStage(overId)
-      ? overId
-      : findDealStage(columns, overId)
-
-    if (!destStage || sourceStage === destStage) return
-
-    // Move deal to destination column during hover
     setColumns((prev) => {
-      const deal = prev[sourceStage].find((d) => d.id === activeId)!
+      const sourceStage = findDealStage(prev, activeId)
+      if (!sourceStage) return prev
+
+      const destStage = isDealStage(overId)
+        ? overId
+        : findDealStage(prev, overId)
+
+      if (!destStage || sourceStage === destStage) return prev
+
+      const deal = prev[sourceStage].find((d) => d.id === activeId)
+      if (!deal) return prev
+
       const destDeals = prev[destStage]
       const overIndex = destDeals.findIndex((d) => d.id === overId)
       const insertAt = overIndex >= 0 ? overIndex : destDeals.length
@@ -110,14 +110,13 @@ export function KanbanBoard() {
     const activeId = active.id as string
     const overId = over.id as string
 
-    const stage = findDealStage(columns, activeId)
-    if (!stage) return
-
-    // Reorder within same column
-    const overStage = isDealStage(overId) ? overId : findDealStage(columns, overId)
-    if (overStage !== stage) return
-
     setColumns((prev) => {
+      const stage = findDealStage(prev, activeId)
+      if (!stage) return prev
+
+      const overStage = isDealStage(overId) ? overId : findDealStage(prev, overId)
+      if (overStage !== stage) return prev
+
       const deals = prev[stage]
       const oldIndex = deals.findIndex((d) => d.id === activeId)
       const newIndex = deals.findIndex((d) => d.id === overId)

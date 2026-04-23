@@ -156,16 +156,21 @@ export async function inviteMember(formData: FormData) {
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
-  // Fire-and-forget: convite já está no banco, e-mail é efeito colateral
-  sendInviteEmail({
+  const emailResult = await sendInviteEmail({
     to:             email,
     workspaceName:  workspace.name,
     invitedByEmail: user.email ?? "um administrador",
     acceptUrl:      `${appUrl}/invite/${token}`,
     role,
-  }).catch((err) => console.error("[inviteMember] email error:", err))
+  })
 
   revalidatePath("/settings/team")
+
+  if (emailResult?.error) {
+    // Convite criado mas e-mail falhou — informar sem bloquear
+    return { success: true, emailWarning: `Convite criado, mas o e-mail não foi enviado: ${emailResult.error}` }
+  }
+
   return { success: true }
 }
 
