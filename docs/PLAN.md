@@ -234,15 +234,15 @@ feat: schema completo do banco — migrations, RLS policies e seed de desenvolvi
 **Objetivo:** Usuário consegue criar workspace, convidar membros por e-mail (Resend) e alternar entre workspaces.
 
 **Entregas:**
-- [ ] Instalar `resend`
-- [ ] Tela `/onboarding/workspace` — criar primeiro workspace após cadastro
-- [ ] Server Action `createWorkspace` — cria workspace + adiciona criador como admin
-- [ ] Workspace switcher no header conectado a workspaces reais do usuário
-- [ ] Tela `/settings/team` — listar membros + botão "Convidar por e-mail"
-- [ ] Server Action `inviteMember` — cria registro em `workspace_members` com status `pending` e envia e-mail via Resend
-- [ ] Rota `/invite/[token]` — aceitar convite e ativar membership
-- [ ] Permissões: apenas `admin` pode convidar e remover membros
-- [ ] Variáveis: `RESEND_API_KEY`, `NEXT_PUBLIC_APP_URL`
+- [x] Instalar `resend`
+- [x] Tela `/onboarding/workspace` — criar primeiro workspace após cadastro
+- [x] Server Action `createWorkspace` — cria workspace + adiciona criador como admin
+- [x] Workspace switcher no header conectado a workspaces reais do usuário
+- [x] Tela `/settings/team` — listar membros + botão "Convidar por e-mail"
+- [x] Server Action `inviteMember` — cria registro em `workspace_members` com status `pending` e envia e-mail via Resend
+- [x] Rota `/invite/[token]` — aceitar convite e ativar membership
+- [x] Permissões: apenas `admin` pode convidar e remover membros
+- [x] Variáveis: `RESEND_API_KEY`, `NEXT_PUBLIC_APP_URL`
 
 **Commit final:**
 ```
