@@ -201,6 +201,50 @@ export type Database = {
           },
         ]
       }
+      workspace_invites: {
+        Row: {
+          id: string
+          workspace_id: string
+          invited_email: string
+          role: string
+          token: string
+          invited_by: string | null
+          expires_at: string
+          used_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          workspace_id: string
+          invited_email: string
+          role?: string
+          token: string
+          invited_by?: string | null
+          expires_at?: string
+          used_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          workspace_id?: string
+          invited_email?: string
+          role?: string
+          token?: string
+          invited_by?: string | null
+          expires_at?: string
+          used_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_invites_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_members: {
         Row: {
           created_at: string

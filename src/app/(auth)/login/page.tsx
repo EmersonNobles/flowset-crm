@@ -47,7 +47,9 @@ export default function LoginPage() {
       return
     }
 
-    router.push("/dashboard")
+    const next = new URLSearchParams(window.location.search).get("next") ?? ""
+    const destination = next.startsWith("/") ? next : "/dashboard"
+    router.push(destination)
     router.refresh()
   }
 

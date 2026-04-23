@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   const authPaths = ["/login", "/cadastro", "/recuperar-senha"]
-  const appPaths = ["/dashboard", "/leads", "/pipeline", "/settings"]
+  const appPaths = ["/dashboard", "/leads", "/pipeline", "/settings", "/workspace"]
 
   const isAuthPath = authPaths.includes(pathname)
   const isAppPath = appPaths.some((p) => pathname.startsWith(p))

@@ -1,13 +1,64 @@
-import { PageHeader } from "@/components/crm/page-header";
+import Link from "next/link"
+import { PageHeader } from "@/components/crm/page-header"
+import { Users, CreditCard, ChevronRight } from "lucide-react"
+
+const items = [
+  {
+    href: "/settings/team",
+    icon: Users,
+    label: "Equipe",
+    description: "Gerencie membros, papéis e convites",
+  },
+  {
+    href: "/settings/billing",
+    icon: CreditCard,
+    label: "Assinatura",
+    description: "Plano atual, upgrade e faturamento",
+    disabled: true,
+    badge: "Em breve",
+  },
+]
 
 export default function SettingsPage() {
   return (
-    <div>
-      <PageHeader
-        title="Configurações"
-        subtitle="Gerencie seu workspace e equipe"
-      />
-      <p className="text-muted-foreground text-sm">Em breve: configurações completas (M8)</p>
+    <div className="max-w-lg">
+      <PageHeader title="Configurações" subtitle="Gerencie seu workspace" />
+      <div className="flex flex-col gap-2 mt-2">
+        {items.map(({ href, icon: Icon, label, description, disabled, badge }) =>
+          disabled ? (
+            <div
+              key={href}
+              className="flex items-center gap-4 rounded-lg border border-border bg-card px-5 py-4 opacity-60 cursor-not-allowed"
+            >
+              <Icon className="size-5 text-muted-foreground shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground flex items-center gap-2">
+                  {label}
+                  {badge && (
+                    <span className="text-[10px] font-semibold bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">
+                      {badge}
+                    </span>
+                  )}
+                </p>
+                <p className="text-xs text-muted-foreground">{description}</p>
+              </div>
+            </div>
+          ) : (
+            <Link
+              key={href}
+              href={href}
+              className="flex items-center gap-4 rounded-lg border border-border bg-card px-5 py-4 hover:bg-accent transition-colors"
+            >
+              <Icon className="size-5 text-muted-foreground shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground">{label}</p>
+                <p className="text-xs text-muted-foreground">{description}</p>
+              </div>
+              <ChevronRight className="size-4 text-muted-foreground shrink-0" />
+            </Link>
+          )
+        )}
+      </div>
     </div>
-  );
+  )
 }
