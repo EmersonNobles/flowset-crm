@@ -183,7 +183,13 @@ export async function removeMember(formData: FormData) {
   if (!target) return { error: "Membro não encontrado." }
   if (target.user_id === user.id) return { error: "Você não pode remover a si mesmo." }
 
-  await supabase.from("workspace_members").delete().eq("id", memberId)
+  const { error: deleteError } = await supabase
+    .from("workspace_members")
+    .delete()
+    .eq("id", memberId)
+    .eq("workspace_id", workspaceId)
+
+  if (deleteError) return { error: "Erro ao remover membro." }
 
   revalidatePath("/settings/team")
   return { success: true }
@@ -202,7 +208,11 @@ export async function revokeInvite(formData: FormData) {
   const myRole = await getMyRole(workspaceId)
   if (myRole !== "admin") return { error: "Apenas administradores podem revogar convites." }
 
-  await supabase.from("workspace_invites").delete().eq("id", inviteId)
+  await supabase
+    .from("workspace_invites")
+    .delete()
+    .eq("id", inviteId)
+    .eq("workspace_id", workspaceId)
 
   revalidatePath("/settings/team")
   return { success: true }

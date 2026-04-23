@@ -16,7 +16,7 @@ export default async function TeamPage() {
 
   const workspaces = await getUserWorkspaces()
   const workspaceId = getActiveWorkspaceId(workspaces)
-  if (!workspaceId) redirect("/onboarding/workspace")
+  if (!workspaceId) redirect("/workspace")
 
   const activeWorkspace = workspaces.find((w) => w.id === workspaceId)!
   const myRole = await getMyRole(workspaceId)
