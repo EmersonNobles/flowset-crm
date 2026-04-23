@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation"
+import { Suspense } from "react"
 import { adminClient } from "@/lib/supabase/admin"
 import { getUserWorkspaces, getActiveWorkspaceId } from "@/lib/supabase/workspace"
 import { PageHeader } from "@/components/crm/page-header"
@@ -60,12 +61,14 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
         subtitle="Gerencie seus contatos e clientes"
         action={<LeadsCreateButton />}
       />
-      <LeadsFilters
-        owners={owners}
-        currentQ={q ?? ""}
-        currentStatus={status ?? "all"}
-        currentOwner={owner ?? "all"}
-      />
+      <Suspense fallback={null}>
+        <LeadsFilters
+          owners={owners}
+          currentQ={q ?? ""}
+          currentStatus={status ?? "all"}
+          currentOwner={owner ?? "all"}
+        />
+      </Suspense>
       <LeadsTable leads={leadsWithOwner} />
     </div>
   )

@@ -37,6 +37,7 @@ interface LeadFormDialogProps {
   lead?: LeadRow
   open: boolean
   onOpenChange: (open: boolean) => void
+  onSuccess?: () => void
 }
 
 const inputClass = (hasError: boolean) =>
@@ -47,7 +48,7 @@ const inputClass = (hasError: boolean) =>
       : "border-border focus:border-ring"
   )
 
-export function LeadFormDialog({ mode, lead, open, onOpenChange }: LeadFormDialogProps) {
+export function LeadFormDialog({ mode, lead, open, onOpenChange, onSuccess }: LeadFormDialogProps) {
   const [serverError, setServerError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -93,7 +94,7 @@ export function LeadFormDialog({ mode, lead, open, onOpenChange }: LeadFormDialo
         ? await createLead(formData)
         : await updateLead(lead!.id, formData)
       if (result?.error) setServerError(result.error)
-      else onOpenChange(false)
+      else { onOpenChange(false); onSuccess?.() }
     })
   }
 
@@ -101,7 +102,7 @@ export function LeadFormDialog({ mode, lead, open, onOpenChange }: LeadFormDialo
     startTransition(async () => {
       const result = await deleteLead(lead!.id)
       if (result?.error) setServerError(result.error)
-      else onOpenChange(false)
+      else { onOpenChange(false); onSuccess?.() }
     })
   }
 

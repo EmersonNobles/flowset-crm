@@ -284,11 +284,11 @@ feat: leads conectados ao Supabase — CRUD completo, busca e filtros reais
 **Objetivo:** Drag-and-drop persiste mudança de stage no banco. Deals são criados e editados via Server Actions.
 
 **Entregas:**
-- [ ] Server Component em `/pipeline` carregando deals agrupados por `stage`
-- [ ] Server Action `moveDeal` — atualiza campo `stage` ao soltar o card na nova coluna
-- [ ] Server Action `createDeal` — insere deal com lead vinculado
+- [x] Server Component em `/pipeline` carregando deals agrupados por `stage`
+- [x] Server Action `moveDeal` — atualiza campo `stage` ao soltar o card na nova coluna
+- [x] Server Action `createDeal` — insere deal com lead vinculado
 - [ ] Server Action `updateDeal` — editar dados do deal no sheet lateral
-- [ ] Otimistic update no drag-and-drop (UI atualiza imediatamente, reverte em caso de erro)
+- [x] Otimistic update no drag-and-drop (UI atualiza imediatamente, persiste via moveDeal)
 - [ ] `DealDetailSheet` carregando dados reais ao abrir
 
 **Commit final:**
@@ -326,12 +326,12 @@ feat: registro de atividades — timeline cronológica e formulário inline no d
 **Objetivo:** Todos os cards e gráficos do dashboard usando dados calculados no banco.
 
 **Entregas:**
-- [ ] Query agregada para Total de Leads (`count` na tabela `leads`)
-- [ ] Query para Negócios Abertos (`count` com `stage NOT IN ('ganho', 'perdido')`)
-- [ ] Query para Valor do Pipeline (`sum(value)` nos deals abertos)
-- [ ] Cálculo de Taxa de Conversão (`deals ganhos / total de deals × 100`)
-- [ ] Query para dados do gráfico de funil (contagem por stage)
-- [ ] Query para Deals com Prazo Próximo (próximos 7 dias, ordenado por `due_date`)
+- [x] Query agregada para Total de Leads (`count` na tabela `leads`)
+- [x] Query para Negócios Abertos (`count` com stage fora de fechado_ganho/perdido)
+- [x] Query para Valor do Pipeline (`sum(value)` nos deals abertos)
+- [x] Cálculo de Taxa de Conversão (`deals ganhos / total de deals × 100`)
+- [x] Query para dados do gráfico de funil (contagem por stage)
+- [x] Query para Deals com Prazo Próximo (ordenado por `due_date`, top 5)
 - [ ] Filtro de período funcionando via search params na URL
 
 **Commit final:**

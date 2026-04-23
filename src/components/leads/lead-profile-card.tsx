@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Mail, Phone, Building2, Briefcase, Calendar, User, Edit, Trash2 } from "lucide-react"
 import type { LeadRow } from "@/types/leads"
@@ -30,16 +30,8 @@ interface LeadProfileCardProps {
 
 export function LeadProfileCard({ lead }: LeadProfileCardProps) {
   const router = useRouter()
-  const [, startTransition] = useTransition()
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
-
-  const handleDeleteClose = (open: boolean) => {
-    setDeleteOpen(open)
-    if (!open) {
-      startTransition(() => router.push("/leads"))
-    }
-  }
 
   return (
     <>
@@ -122,7 +114,13 @@ export function LeadProfileCard({ lead }: LeadProfileCardProps) {
       </div>
 
       <LeadFormDialog mode="edit" lead={lead} open={editOpen} onOpenChange={setEditOpen} />
-      <LeadFormDialog mode="delete" lead={lead} open={deleteOpen} onOpenChange={handleDeleteClose} />
+      <LeadFormDialog
+        mode="delete"
+        lead={lead}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onSuccess={() => router.push("/leads")}
+      />
     </>
   )
 }
