@@ -20,9 +20,11 @@ export async function sendInviteEmail({
 
   const resend = new Resend(process.env.RESEND_API_KEY)
   const rolePt = role === "admin" ? "Administrador" : "Membro"
+  // Em produção, troque por um domínio verificado no Resend (ex: noreply@seudominio.com)
+  const from = process.env.RESEND_FROM_EMAIL ?? "FlowSet CRM <onboarding@resend.dev>"
 
-  await resend.emails.send({
-    from: "FlowSet CRM <noreply@flowset.app>",
+  const { error } = await resend.emails.send({
+    from,
     to,
     subject: `Você foi convidado para ${workspaceName} no FlowSet CRM`,
     html: `
@@ -70,4 +72,8 @@ export async function sendInviteEmail({
 </body>
 </html>`,
   })
+
+  if (error) {
+    console.error("[sendInviteEmail] Resend error:", error)
+  }
 }
