@@ -208,16 +208,17 @@ feat: autenticação real com Supabase — login, cadastro, logout e proteção 
 **Objetivo:** Todas as tabelas criadas via migrations com políticas RLS garantindo isolamento por workspace.
 
 **Entregas:**
-- [ ] Migration `001_workspaces.sql` — tabela `workspaces` (id, name, slug, plan, created_at)
-- [ ] Migration `002_workspace_members.sql` — tabela `workspace_members` (workspace_id, user_id, role, invited_email, status)
-- [ ] Migration `003_leads.sql` — tabela `leads` (id, workspace_id, name, email, phone, company, role, status, owner_id, created_at)
-- [ ] Migration `004_deals.sql` — tabela `deals` (id, workspace_id, lead_id, title, value, stage, owner_id, due_date, created_at)
-- [ ] Migration `005_activities.sql` — tabela `activities` (id, lead_id, workspace_id, type, description, author_id, created_at)
-- [ ] Migration `006_subscriptions.sql` — tabela `subscriptions` (workspace_id, stripe_customer_id, stripe_subscription_id, plan, status, current_period_end)
-- [ ] Políticas RLS em todas as tabelas: usuário só acessa dados do workspace do qual é membro
-- [ ] Índices nas colunas mais consultadas (`workspace_id`, `lead_id`, `owner_id`)
+- [x] Migration `001_create_workspaces.sql` — tabela `workspaces` (id, name, slug, plan, created_at)
+- [x] Migration `002_create_workspace_members.sql` — tabela `workspace_members` (workspace_id, user_id, role, invited_email, status)
+- [x] Migration `003_create_leads.sql` — tabela `leads` (id, workspace_id, name, email, phone, company, role, status, owner_id, created_at)
+- [x] Migration `004_create_deals.sql` — tabela `deals` (id, workspace_id, lead_id, title, value, stage, owner_id, due_date, created_at)
+- [x] Migration `005_create_activities.sql` — tabela `activities` (id, lead_id, workspace_id, type, description, author_id, created_at)
+- [x] Migration `006_create_subscriptions.sql` — tabela `subscriptions` (workspace_id, stripe_customer_id, stripe_subscription_id, plan, status, current_period_end)
+- [x] Políticas RLS em todas as tabelas: usuário só acessa dados do workspace do qual é membro (`007_rls_policies.sql` + função `is_workspace_member`)
+- [x] Índices nas colunas mais consultadas (`workspace_id`, `lead_id`, `owner_id`, `status`, `stage`, `due_date`)
 - [ ] Arquivo `supabase/seed.sql` com dados de teste para desenvolvimento
-- [ ] Aplicar migrations: `npx supabase db push`
+- [x] Aplicar migrations: `npx supabase db push` — 7 migrations aplicadas com sucesso
+- [x] Gerar tipos TypeScript: `npx supabase gen types typescript` → `src/types/supabase.ts`
 
 **Commit final:**
 ```
