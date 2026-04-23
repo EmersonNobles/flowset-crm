@@ -226,9 +226,11 @@ export async function revokeInvite(formData: FormData) {
 
 // ── Aceitar convite ────────────────────────────────────────────────
 
-export async function acceptInvite(token: string) {
+export async function acceptInvite(
+  token: string
+): Promise<{ error: string } | { ok: true }> {
   const user = await getAuthUser()
-  if (!user) redirect(`/login?next=/invite/${token}`)
+  if (!user) return { error: "Você precisa estar logado para aceitar o convite." }
 
   const { data: invite, error } = await adminClient
     .from("workspace_invites")
@@ -236,9 +238,9 @@ export async function acceptInvite(token: string) {
     .eq("token", token)
     .single()
 
-  if (error || !invite) redirect("/dashboard?invite=invalid")
-  if (invite.used_at) redirect("/dashboard?invite=used")
-  if (new Date(invite.expires_at) < new Date()) redirect("/dashboard?invite=expired")
+  if (error || !invite) return { error: "Convite inválido ou não encontrado." }
+  if (invite.used_at)   return { error: "Este convite já foi utilizado." }
+  if (new Date(invite.expires_at) < new Date()) return { error: "Este convite expirou." }
 
   const { data: alreadyMember } = await adminClient
     .from("workspace_members")
@@ -249,13 +251,19 @@ export async function acceptInvite(token: string) {
     .maybeSingle()
 
   if (!alreadyMember) {
-    await adminClient.from("workspace_members").insert({
-      workspace_id:  invite.workspace_id,
-      user_id:       user.id,
-      invited_email: invite.invited_email,
-      role:          invite.role,
-      status:        "active",
-    })
+    const { error: insertError } = await adminClient
+      .from("workspace_members")
+      .insert({
+        workspace_id:  invite.workspace_id,
+        user_id:       user.id,
+        invited_email: invite.invited_email,
+        role:          invite.role,
+        status:        "active",
+      })
+    if (insertError) {
+      console.error("[acceptInvite] insertError:", insertError)
+      return { error: "Erro ao entrar no workspace. Tente novamente." }
+    }
   }
 
   await adminClient
@@ -264,5 +272,5 @@ export async function acceptInvite(token: string) {
     .eq("id", invite.id)
 
   cookies().set(WORKSPACE_COOKIE, invite.workspace_id, { path: "/", maxAge: 60 * 60 * 24 * 365 })
-  redirect("/dashboard?invite=accepted")
+  return { ok: true }
 }

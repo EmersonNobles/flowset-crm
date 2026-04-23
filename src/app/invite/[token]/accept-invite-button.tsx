@@ -1,19 +1,24 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { acceptInvite } from "@/app/actions/workspace"
 
 export function AcceptInviteButton({ token }: { token: string }) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
   function handle() {
+    setError(null)
     startTransition(async () => {
-      try {
-        await acceptInvite(token)
-      } catch {
-        setError("Erro ao aceitar convite. Tente novamente.")
+      const result = await acceptInvite(token)
+      if ("error" in result) {
+        setError(result.error)
+      } else {
+        router.push("/dashboard")
+        router.refresh()
       }
     })
   }
