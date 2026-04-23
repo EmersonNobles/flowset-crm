@@ -51,7 +51,7 @@ export default function CadastroPage() {
       password: data.password,
       options: {
         data: { name: data.name },
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback${window.location.search}`,
       },
     })
 
@@ -62,8 +62,6 @@ export default function CadastroPage() {
     }
 
     setSentEmail(data.email)
-    // Preservar ?next= no link de confirmação via emailRedirectTo não é possível
-    // O usuário será redirecionado para o ?next= após confirmar e fazer login
     setLoading(false)
     setSent(true)
   }
