@@ -150,16 +150,20 @@ export async function inviteMember(formData: FormData) {
       invited_by:    user.id,
     })
 
-  if (inviteError) return { error: "Erro ao criar convite." }
+  if (inviteError) {
+    console.error("[inviteMember] inviteError:", inviteError)
+    return { error: `Erro ao criar convite: ${inviteError.message}` }
+  }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
-  await sendInviteEmail({
+  // Fire-and-forget: convite já está no banco, e-mail é efeito colateral
+  sendInviteEmail({
     to:             email,
     workspaceName:  workspace.name,
     invitedByEmail: user.email ?? "um administrador",
     acceptUrl:      `${appUrl}/invite/${token}`,
     role,
-  })
+  }).catch((err) => console.error("[inviteMember] email error:", err))
 
   revalidatePath("/settings/team")
   return { success: true }
