@@ -11,12 +11,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const workspaces = await getUserWorkspaces()
 
-  // Sem nenhum workspace → criar o primeiro
   if (workspaces.length === 0) {
     redirect("/workspace")
   }
 
   const activeWorkspaceId = getActiveWorkspaceId(workspaces)!
+  const userName = (user.user_metadata?.name as string | undefined) ?? null
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -25,6 +25,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <Header
           workspaces={workspaces}
           activeWorkspaceId={activeWorkspaceId}
+          userEmail={user.email ?? ""}
+          userName={userName}
         />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
       </div>

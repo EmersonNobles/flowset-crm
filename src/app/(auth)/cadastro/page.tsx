@@ -62,6 +62,8 @@ export default function CadastroPage() {
     }
 
     setSentEmail(data.email)
+    // Preservar ?next= no link de confirmação via emailRedirectTo não é possível
+    // O usuário será redirecionado para o ?next= após confirmar e fazer login
     setLoading(false)
     setSent(true)
   }
