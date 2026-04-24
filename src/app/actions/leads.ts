@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server"
 import { adminClient } from "@/lib/supabase/admin"
 import { getUserWorkspaces, getActiveWorkspaceId } from "@/lib/supabase/workspace"
 
+const FREE_LEAD_LIMIT = 50
+
 async function getAuthContext() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -25,6 +27,26 @@ export async function createLead(formData: FormData) {
   const email = (formData.get("email") as string)?.trim()
   if (!name) return { error: "Nome é obrigatório" }
   if (!email) return { error: "E-mail é obrigatório" }
+
+  const { data: workspace } = await adminClient
+    .from("workspaces")
+    .select("plan")
+    .eq("id", workspaceId)
+    .single()
+
+  if ((workspace?.plan ?? "free") === "free") {
+    const { count } = await adminClient
+      .from("leads")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId)
+
+    if ((count ?? 0) >= FREE_LEAD_LIMIT) {
+      return {
+        error: `O plano Free suporta até ${FREE_LEAD_LIMIT} leads. Faça upgrade para o Pro para adicionar mais.`,
+        limitReached: true,
+      }
+    }
+  }
 
   const { error } = await adminClient.from("leads").insert({
     name,

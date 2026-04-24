@@ -165,8 +165,8 @@ export type Database = {
           created_at: string
           current_period_end: string | null
           id: string
-          plan: string
-          status: string
+          plan: "free" | "pro"
+          status: "active" | "canceled" | "past_due" | "trialing"
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           workspace_id: string
@@ -175,8 +175,8 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           id?: string
-          plan?: string
-          status?: string
+          plan?: "free" | "pro"
+          status?: "active" | "canceled" | "past_due" | "trialing"
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           workspace_id: string
@@ -185,8 +185,8 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           id?: string
-          plan?: string
-          status?: string
+          plan?: "free" | "pro"
+          status?: "active" | "canceled" | "past_due" | "trialing"
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           workspace_id?: string
@@ -288,21 +288,21 @@ export type Database = {
           created_at: string
           id: string
           name: string
-          plan: string
+          plan: "free" | "pro"
           slug: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
-          plan?: string
+          plan?: "free" | "pro"
           slug: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
-          plan?: string
+          plan?: "free" | "pro"
           slug?: string
         }
         Relationships: []
