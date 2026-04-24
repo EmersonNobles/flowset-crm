@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
+import { createClient } from "@/lib/supabase/server"
 import { adminClient } from "@/lib/supabase/admin"
 import { getUserWorkspaces, getActiveWorkspaceId } from "@/lib/supabase/workspace"
 import { LeadProfileCard } from "@/components/leads/lead-profile-card"
@@ -16,7 +17,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
   const workspaceId = getActiveWorkspaceId(workspaces)
   if (!workspaceId) redirect("/onboarding/workspace")
 
-  const supabase = await (await import("@/lib/supabase/server")).createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   const [{ data: leadData }, { data: activitiesData }] = await Promise.all([

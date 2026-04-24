@@ -241,15 +241,20 @@ export function KanbanBoard({ initialDeals, availableLeads }: KanbanBoardProps) 
         open={!!selectedDeal}
         onClose={() => setSelectedDeal(null)}
         availableLeads={availableLeads}
-        onUpdate={(updated) =>
+        onUpdate={(updated) => {
+          setSelectedDeal(updated)
           setColumns((prev) => {
-            const stage = updated.stage
+            // remove from every column, then insert into the correct one
+            const without = {} as ColumnMap
+            for (const col of PIPELINE_COLUMNS) {
+              without[col.id] = prev[col.id].filter((d) => d.id !== updated.id)
+            }
             return {
-              ...prev,
-              [stage]: prev[stage].map((d) => (d.id === updated.id ? updated : d)),
+              ...without,
+              [updated.stage]: [...without[updated.stage], updated],
             }
           })
-        }
+        }}
       />
     </>
   )

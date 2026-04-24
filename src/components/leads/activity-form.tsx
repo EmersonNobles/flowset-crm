@@ -1,6 +1,6 @@
 "use client"
 
-import { useTransition, useState, useRef } from "react"
+import { useTransition, useState } from "react"
 import { Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -25,10 +25,9 @@ interface ActivityFormProps {
 
 export function ActivityForm({ leadId }: ActivityFormProps) {
   const [open, setOpen] = useState(false)
+  const [formKey, setFormKey] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const typeRef = useRef<HTMLSelectElement>(null)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -40,9 +39,9 @@ export function ActivityForm({ leadId }: ActivityFormProps) {
         setError(result.error)
         return
       }
+      // bump key to unmount/remount the form, resetting all fields
+      setFormKey((k) => k + 1)
       setOpen(false)
-      if (textareaRef.current) textareaRef.current.value = ""
-      if (typeRef.current) typeRef.current.value = "ligacao"
     })
   }
 
@@ -61,10 +60,14 @@ export function ActivityForm({ leadId }: ActivityFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+    <form
+      key={formKey}
+      onSubmit={handleSubmit}
+      className="rounded-xl border border-border bg-muted/30 p-4 space-y-3"
+    >
       <div className="flex items-center gap-3">
         <label className="text-xs font-medium text-muted-foreground shrink-0">Tipo</label>
-        <select ref={typeRef} name="type" defaultValue="ligacao" className={selectClass}>
+        <select name="type" defaultValue="ligacao" className={selectClass}>
           {TYPES.map((t) => (
             <option key={t.value} value={t.value}>{t.label}</option>
           ))}
@@ -72,7 +75,6 @@ export function ActivityForm({ leadId }: ActivityFormProps) {
       </div>
 
       <textarea
-        ref={textareaRef}
         name="description"
         required
         rows={3}

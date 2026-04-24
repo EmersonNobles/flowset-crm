@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import { Briefcase, DollarSign, TrendingUp, Users } from "lucide-react"
 import { adminClient } from "@/lib/supabase/admin"
@@ -103,7 +104,7 @@ export default async function DashboardPage({
       <PageHeader
         title="Dashboard"
         subtitle="Visão geral do seu pipeline e métricas"
-        action={<PeriodSelector />}
+        action={<Suspense fallback={null}><PeriodSelector /></Suspense>}
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
