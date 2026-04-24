@@ -1,4 +1,4 @@
-import { Resend } from "resend"
+import { sendEmail } from "./send-email"
 
 export async function sendInviteEmail({
   to,
@@ -13,18 +13,9 @@ export async function sendInviteEmail({
   acceptUrl: string
   role: string
 }): Promise<{ error: string } | null> {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn("[resend] RESEND_API_KEY não configurada — e-mail não enviado")
-    return { error: "RESEND_API_KEY não configurada" }
-  }
-
-  const resend = new Resend(process.env.RESEND_API_KEY)
   const rolePt = role === "admin" ? "Administrador" : "Membro"
-  // Em produção, troque por um domínio verificado no Resend (ex: noreply@seudominio.com)
-  const from = process.env.RESEND_FROM_EMAIL ?? "FlowSet CRM <onboarding@resend.dev>"
 
-  const { error } = await resend.emails.send({
-    from,
+  return sendEmail({
     to,
     subject: `Você foi convidado para ${workspaceName} no FlowSet CRM`,
     html: `
@@ -72,11 +63,4 @@ export async function sendInviteEmail({
 </body>
 </html>`,
   })
-
-  if (error) {
-    console.error("[sendInviteEmail] Resend error:", error)
-    return { error: error.message }
-  }
-
-  return null
 }

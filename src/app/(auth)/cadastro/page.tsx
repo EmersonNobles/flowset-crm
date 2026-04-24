@@ -51,7 +51,7 @@ export default function CadastroPage() {
       password: data.password,
       options: {
         data: { name: data.name },
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback${window.location.search}`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?type=signup`,
       },
     })
 
