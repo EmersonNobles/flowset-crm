@@ -38,7 +38,7 @@ async function getOrCreateCustomer(workspaceId: string, email: string): Promise<
   await adminClient
     .from("subscriptions")
     .upsert(
-      { workspace_id: workspaceId, stripe_customer_id: customer.id, plan: "free", status: "inactive" },
+      { workspace_id: workspaceId, stripe_customer_id: customer.id, plan: "free", status: "active" },
       { onConflict: "workspace_id" }
     )
 
