@@ -57,3 +57,27 @@ export async function createDeal(formData: FormData) {
   revalidatePath("/dashboard")
   return { success: true }
 }
+
+export async function updateDeal(id: string, formData: FormData) {
+  const { workspaceId } = await getAuthContext()
+
+  const title = (formData.get("title") as string)?.trim()
+  if (!title) return { error: "Título é obrigatório" }
+
+  const { error } = await adminClient
+    .from("deals")
+    .update({
+      title,
+      value: Number(formData.get("value")) || 0,
+      lead_id: (formData.get("leadId") as string) || null,
+      due_date: (formData.get("dueDate") as string) || null,
+      stage: formData.get("stage") as string,
+    })
+    .eq("id", id)
+    .eq("workspace_id", workspaceId)
+
+  if (error) return { error: error.message }
+  revalidatePath("/pipeline")
+  revalidatePath("/dashboard")
+  return { success: true }
+}

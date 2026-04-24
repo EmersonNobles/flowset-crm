@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState, useTransition } from "react"
 import {
   X,
   Calendar,
@@ -9,9 +10,13 @@ import {
   FileText,
   AlertCircle,
   TrendingUp,
+  Pencil,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { PIPELINE_COLUMNS, type Deal } from "@/lib/mock/deals"
+import { Button } from "@/components/ui/button"
+import { PIPELINE_COLUMNS, type Deal, type DealStage } from "@/lib/mock/deals"
+import { updateDeal } from "@/app/actions/deals"
+import type { AvailableLead } from "@/components/crm/kanban-board"
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -42,15 +47,92 @@ function getInitials(name: string): string {
     .toUpperCase()
 }
 
+const fieldClass = (hasError?: boolean) =>
+  cn(
+    "h-8 w-full rounded-lg border bg-background px-2.5 text-sm text-foreground",
+    "placeholder:text-muted-foreground outline-none focus:ring-3 focus:ring-ring/50 transition-all",
+    hasError ? "border-destructive" : "border-border focus:border-ring"
+  )
+
+const selectClass = cn(
+  "h-8 w-full rounded-lg border border-border bg-background px-2.5 text-sm text-foreground",
+  "outline-none focus:border-ring focus:ring-3 focus:ring-ring/50 transition-all cursor-pointer"
+)
+
 interface DealDetailSheetProps {
   deal: Deal | null
   open: boolean
   onClose: () => void
+  availableLeads: AvailableLead[]
+  onUpdate: (updated: Deal) => void
 }
 
-export function DealDetailSheet({ deal, open, onClose }: DealDetailSheetProps) {
+export function DealDetailSheet({
+  deal,
+  open,
+  onClose,
+  availableLeads,
+  onUpdate,
+}: DealDetailSheetProps) {
+  const [editing, setEditing] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+
+  // form state mirrors the deal fields
+  const [form, setForm] = useState({
+    title: "",
+    value: 0,
+    leadId: "",
+    dueDate: "",
+    stage: "novo_lead" as DealStage,
+  })
+
+  useEffect(() => {
+    if (deal) {
+      setForm({
+        title: deal.title,
+        value: deal.value,
+        leadId: deal.leadId ?? "",
+        dueDate: deal.dueDate ?? "",
+        stage: deal.stage,
+      })
+    }
+    setEditing(false)
+    setServerError(null)
+  }, [deal])
+
+  function handleSave() {
+    if (!deal) return
+    const formData = new FormData()
+    formData.set("title", form.title)
+    formData.set("value", String(form.value))
+    formData.set("leadId", form.leadId)
+    formData.set("dueDate", form.dueDate)
+    formData.set("stage", form.stage)
+
+    startTransition(async () => {
+      const result = await updateDeal(deal.id, formData)
+      if (result?.error) {
+        setServerError(result.error)
+        return
+      }
+      const leadInfo = availableLeads.find((l) => l.id === form.leadId)
+      onUpdate({
+        ...deal,
+        title: form.title,
+        value: form.value,
+        leadId: form.leadId,
+        leadName: leadInfo?.name ?? deal.leadName,
+        leadCompany: leadInfo?.company ?? deal.leadCompany,
+        dueDate: form.dueDate,
+        stage: form.stage,
+      })
+      setEditing(false)
+    })
+  }
+
   const stageConfig = PIPELINE_COLUMNS.find((c) => c.id === deal?.stage)
-  const overdue = deal ? isOverdue(deal.dueDate) : false
+  const overdue = deal?.dueDate ? isOverdue(deal.dueDate) : false
 
   return (
     <>
@@ -76,7 +158,7 @@ export function DealDetailSheet({ deal, open, onClose }: DealDetailSheetProps) {
             {/* Header */}
             <div className="flex items-start justify-between gap-3 px-5 pt-5 pb-4 border-b border-border shrink-0">
               <div className="min-w-0">
-                {stageConfig && (
+                {stageConfig && !editing && (
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <span
                       className={cn(
@@ -90,92 +172,193 @@ export function DealDetailSheet({ deal, open, onClose }: DealDetailSheetProps) {
                   </div>
                 )}
                 <h2 className="text-sm font-semibold text-foreground leading-snug">
-                  {deal.title}
+                  {editing ? "Editar Negócio" : deal.title}
                 </h2>
               </div>
-              <button
-                onClick={onClose}
-                className="shrink-0 flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors mt-0.5"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            {/* Value hero */}
-            <div className="px-5 py-4 border-b border-border shrink-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <TrendingUp className="size-3.5 text-primary" />
-                <span className="text-xs text-muted-foreground">Valor do negócio</span>
+              <div className="flex items-center gap-1 shrink-0 mt-0.5">
+                {!editing && (
+                  <button
+                    onClick={() => setEditing(true)}
+                    className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  >
+                    <Pencil className="size-3.5" />
+                  </button>
+                )}
+                <button
+                  onClick={onClose}
+                  className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                >
+                  <X className="size-4" />
+                </button>
               </div>
-              <p className="text-2xl font-bold text-primary tabular-nums">
-                {formatCurrency(deal.value)}
-              </p>
             </div>
 
-            {/* Details */}
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-              <SheetRow
-                icon={User}
-                label="Lead"
-                value={
-                  <div className="flex items-center gap-2">
-                    <span className="flex size-5 items-center justify-center rounded-full bg-primary/10 text-primary text-[9px] font-bold">
-                      {getInitials(deal.leadName)}
-                    </span>
-                    {deal.leadName}
+            {editing ? (
+              /* ── Edit mode ─────────────────────────────────────── */
+              <div className="flex flex-col flex-1 min-h-0">
+                <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">Título *</label>
+                    <input
+                      value={form.title}
+                      onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                      className={fieldClass(!form.title)}
+                      placeholder="Título do negócio"
+                    />
                   </div>
-                }
-              />
 
-              <SheetRow icon={Building2} label="Empresa" value={deal.leadCompany} />
-
-              <SheetRow
-                icon={User}
-                label="Responsável"
-                value={
-                  <div className="flex items-center gap-2">
-                    <span className="flex size-5 items-center justify-center rounded-full bg-muted text-foreground text-[9px] font-bold">
-                      {getInitials(deal.owner)}
-                    </span>
-                    {deal.owner}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-muted-foreground">Valor (R$)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={form.value}
+                        onChange={(e) => setForm((f) => ({ ...f, value: Number(e.target.value) }))}
+                        className={fieldClass()}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-muted-foreground">Etapa</label>
+                      <select
+                        value={form.stage}
+                        onChange={(e) => setForm((f) => ({ ...f, stage: e.target.value as DealStage }))}
+                        className={selectClass}
+                      >
+                        {PIPELINE_COLUMNS.map((col) => (
+                          <option key={col.id} value={col.id}>{col.label}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                }
-              />
 
-              <SheetRow
-                icon={Tag}
-                label="Etapa"
-                value={stageConfig?.label ?? deal.stage}
-              />
-
-              <SheetRow
-                icon={overdue ? AlertCircle : Calendar}
-                label="Prazo"
-                value={
-                  <span className={cn(overdue && "text-destructive")}>
-                    {formatDate(deal.dueDate)}
-                    {overdue && (
-                      <span className="ml-1.5 text-[11px] font-medium bg-destructive/10 text-destructive px-1.5 py-0.5 rounded-full">
-                        Vencido
-                      </span>
-                    )}
-                  </span>
-                }
-                iconClassName={overdue ? "text-destructive" : undefined}
-              />
-
-              {deal.notes && (
-                <div className="pt-1 border-t border-border">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <FileText className="size-3.5 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Notas</span>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">Lead vinculado</label>
+                    <select
+                      value={form.leadId}
+                      onChange={(e) => setForm((f) => ({ ...f, leadId: e.target.value }))}
+                      className={selectClass}
+                    >
+                      <option value="">Nenhum lead vinculado</option>
+                      {availableLeads.map((lead) => (
+                        <option key={lead.id} value={lead.id}>
+                          {lead.name}{lead.company ? ` — ${lead.company}` : ""}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                  <p className="text-sm text-foreground leading-relaxed bg-muted/40 rounded-lg px-3 py-2.5">
-                    {deal.notes}
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">Prazo</label>
+                    <input
+                      type="date"
+                      value={form.dueDate}
+                      onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
+                      className={fieldClass()}
+                    />
+                  </div>
+
+                  {serverError && (
+                    <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
+                      {serverError}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex justify-end gap-2 px-5 py-4 border-t border-border shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { setEditing(false); setServerError(null) }}
+                    disabled={isPending}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button size="sm" onClick={handleSave} disabled={isPending || !form.title}>
+                    {isPending ? "Salvando..." : "Salvar"}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              /* ── View mode ─────────────────────────────────────── */
+              <>
+                <div className="px-5 py-4 border-b border-border shrink-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <TrendingUp className="size-3.5 text-primary" />
+                    <span className="text-xs text-muted-foreground">Valor do negócio</span>
+                  </div>
+                  <p className="text-2xl font-bold text-primary tabular-nums">
+                    {formatCurrency(deal.value)}
                   </p>
                 </div>
-              )}
-            </div>
+
+                <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                  <SheetRow
+                    icon={User}
+                    label="Lead"
+                    value={
+                      <div className="flex items-center gap-2">
+                        <span className="flex size-5 items-center justify-center rounded-full bg-primary/10 text-primary text-[9px] font-bold">
+                          {getInitials(deal.leadName)}
+                        </span>
+                        {deal.leadName}
+                      </div>
+                    }
+                  />
+
+                  <SheetRow icon={Building2} label="Empresa" value={deal.leadCompany} />
+
+                  <SheetRow
+                    icon={User}
+                    label="Responsável"
+                    value={
+                      <div className="flex items-center gap-2">
+                        <span className="flex size-5 items-center justify-center rounded-full bg-muted text-foreground text-[9px] font-bold">
+                          {getInitials(deal.owner)}
+                        </span>
+                        {deal.owner}
+                      </div>
+                    }
+                  />
+
+                  <SheetRow
+                    icon={Tag}
+                    label="Etapa"
+                    value={stageConfig?.label ?? deal.stage}
+                  />
+
+                  {deal.dueDate && (
+                    <SheetRow
+                      icon={overdue ? AlertCircle : Calendar}
+                      label="Prazo"
+                      value={
+                        <span className={cn(overdue && "text-destructive")}>
+                          {formatDate(deal.dueDate)}
+                          {overdue && (
+                            <span className="ml-1.5 text-[11px] font-medium bg-destructive/10 text-destructive px-1.5 py-0.5 rounded-full">
+                              Vencido
+                            </span>
+                          )}
+                        </span>
+                      }
+                      iconClassName={overdue ? "text-destructive" : undefined}
+                    />
+                  )}
+
+                  {deal.notes && (
+                    <div className="pt-1 border-t border-border">
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <FileText className="size-3.5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Notas</span>
+                      </div>
+                      <p className="text-sm text-foreground leading-relaxed bg-muted/40 rounded-lg px-3 py-2.5">
+                        {deal.notes}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
