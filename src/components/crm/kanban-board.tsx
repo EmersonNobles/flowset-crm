@@ -240,6 +240,16 @@ export function KanbanBoard({ initialDeals, availableLeads }: KanbanBoardProps) 
         deal={selectedDeal}
         open={!!selectedDeal}
         onClose={() => setSelectedDeal(null)}
+        availableLeads={availableLeads}
+        onUpdate={(updated) =>
+          setColumns((prev) => {
+            const stage = updated.stage
+            return {
+              ...prev,
+              [stage]: prev[stage].map((d) => (d.id === updated.id ? updated : d)),
+            }
+          })
+        }
       />
     </>
   )

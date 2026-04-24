@@ -16,6 +16,9 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
   const workspaceId = getActiveWorkspaceId(workspaces)
   if (!workspaceId) redirect("/onboarding/workspace")
 
+  const supabase = await (await import("@/lib/supabase/server")).createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
   const [{ data: leadData }, { data: activitiesData }] = await Promise.all([
     adminClient
       .from("leads")
@@ -70,7 +73,11 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
               </span>
             )}
           </h3>
-          <ActivityTimeline activities={activities} />
+          <ActivityTimeline
+            activities={activities}
+            leadId={params.id}
+            currentUserId={user?.id ?? ""}
+          />
         </div>
       </div>
     </div>

@@ -1,28 +1,42 @@
 "use client"
 
-import { useState } from "react"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
-const PERIODS = ["Esta semana", "Este mês", "Este trimestre"] as const
-type Period = (typeof PERIODS)[number]
+const PERIODS = [
+  { label: "Esta semana", value: "week" },
+  { label: "Este mês",    value: "month" },
+  { label: "Este trimestre", value: "quarter" },
+] as const
+
+type PeriodValue = (typeof PERIODS)[number]["value"]
 
 export function PeriodSelector() {
-  const [selected, setSelected] = useState<Period>("Este mês")
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const selected = (searchParams.get("period") as PeriodValue) ?? "month"
+
+  function select(value: PeriodValue) {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("period", value)
+    router.push(`${pathname}?${params.toString()}`)
+  }
 
   return (
     <div className="flex rounded-lg border border-border bg-muted/30 p-0.5">
       {PERIODS.map((period) => (
         <button
-          key={period}
-          onClick={() => setSelected(period)}
+          key={period.value}
+          onClick={() => select(period.value)}
           className={cn(
             "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-            selected === period
+            selected === period.value
               ? "bg-card text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
-          {period}
+          {period.label}
         </button>
       ))}
     </div>

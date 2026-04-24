@@ -15,20 +15,44 @@ const CLOSED = new Set(["fechado_ganho", "fechado_perdido"])
 const formatBRL = (value: number) =>
   value.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
 
-export default async function DashboardPage() {
+function periodStart(period: string): string {
+  const now = new Date()
+  if (period === "week") {
+    const day = now.getDay()
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1)
+    return new Date(now.getFullYear(), now.getMonth(), diff).toISOString()
+  }
+  if (period === "quarter") {
+    const q = Math.floor(now.getMonth() / 3)
+    return new Date(now.getFullYear(), q * 3, 1).toISOString()
+  }
+  // month (default)
+  return new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+}
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { period?: string }
+}) {
   const workspaces = await getUserWorkspaces()
   const workspaceId = getActiveWorkspaceId(workspaces)
   if (!workspaceId) redirect("/onboarding/workspace")
+
+  const period = searchParams.period ?? "month"
+  const since = periodStart(period)
 
   const [{ data: dealsData }, { data: leadsData, count: leadsCount }] = await Promise.all([
     adminClient
       .from("deals")
       .select("*")
-      .eq("workspace_id", workspaceId),
+      .eq("workspace_id", workspaceId)
+      .gte("created_at", since),
     adminClient
       .from("leads")
       .select("id, name, company", { count: "exact" })
-      .eq("workspace_id", workspaceId),
+      .eq("workspace_id", workspaceId)
+      .gte("created_at", since),
   ])
 
   const deals = dealsData ?? []

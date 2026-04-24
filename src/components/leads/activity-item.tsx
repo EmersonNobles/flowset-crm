@@ -1,5 +1,9 @@
-import { Phone, Mail, Calendar, FileText } from "lucide-react"
+"use client"
+
+import { useTransition } from "react"
+import { Phone, Mail, Calendar, FileText, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { deleteActivity } from "@/app/actions/activities"
 import type { ActivityRow, ActivityType } from "@/types/leads"
 
 const typeConfig: Record<
@@ -51,14 +55,22 @@ function formatRelativeDate(dateString: string): string {
 interface ActivityItemProps {
   activity: ActivityRow
   isLast?: boolean
+  canDelete?: boolean
 }
 
-export function ActivityItem({ activity, isLast }: ActivityItemProps) {
+export function ActivityItem({ activity, isLast, canDelete }: ActivityItemProps) {
   const config = typeConfig[activity.type]
   const Icon = config.icon
+  const [isPending, startTransition] = useTransition()
+
+  function handleDelete() {
+    startTransition(async () => {
+      await deleteActivity(activity.id, activity.lead_id)
+    })
+  }
 
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-3 group">
       <div className="flex flex-col items-center">
         <div
           className={cn(
@@ -70,13 +82,22 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
         </div>
         {!isLast && <div className="mt-1 w-px flex-1 bg-border min-h-4" />}
       </div>
-      <div className={cn("min-w-0 pb-5", isLast && "pb-0")}>
+      <div className={cn("min-w-0 pb-5 flex-1", isLast && "pb-0")}>
         <div className="flex flex-wrap items-center gap-1.5 mb-1">
           <span className="text-sm font-medium text-foreground">{config.label}</span>
           <span className="text-xs text-muted-foreground">·</span>
           <span className="text-xs text-muted-foreground">{activity.author_email ?? "—"}</span>
           <span className="text-xs text-muted-foreground">·</span>
           <span className="text-xs text-muted-foreground">{formatRelativeDate(activity.created_at)}</span>
+          {canDelete && (
+            <button
+              onClick={handleDelete}
+              disabled={isPending}
+              className="ml-auto opacity-0 group-hover:opacity-100 flex size-5 items-center justify-center rounded text-muted-foreground hover:text-destructive transition-all"
+            >
+              <Trash2 className="size-3.5" />
+            </button>
+          )}
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">{activity.description}</p>
       </div>

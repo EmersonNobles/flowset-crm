@@ -287,9 +287,9 @@ feat: leads conectados ao Supabase — CRUD completo, busca e filtros reais
 - [x] Server Component em `/pipeline` carregando deals agrupados por `stage`
 - [x] Server Action `moveDeal` — atualiza campo `stage` ao soltar o card na nova coluna
 - [x] Server Action `createDeal` — insere deal com lead vinculado
-- [ ] Server Action `updateDeal` — editar dados do deal no sheet lateral
+- [x] Server Action `updateDeal` — editar dados do deal no sheet lateral
 - [x] Otimistic update no drag-and-drop (UI atualiza imediatamente, persiste via moveDeal)
-- [ ] `DealDetailSheet` carregando dados reais ao abrir
+- [x] `DealDetailSheet` com modo de edição inline (título, valor, etapa, lead, prazo)
 
 **Commit final:**
 ```
@@ -305,11 +305,11 @@ feat: pipeline kanban conectado ao Supabase — drag-and-drop persistido e CRUD 
 **Objetivo:** Timeline de atividades no detalhe do lead funcionando com dados reais.
 
 **Entregas:**
-- [ ] Componente `ActivityTimeline` em `/leads/[id]` listando atividades em ordem cronológica decrescente
-- [ ] Componente `ActivityItem` — ícone por tipo (📞 ligação, 📧 e-mail, 📅 reunião, 📝 nota), autor, data relativa
-- [ ] Formulário inline "Registrar atividade" — tipo (select), descrição (textarea), data
-- [ ] Server Action `createActivity` — insere na tabela `activities`
-- [ ] Server Action `deleteActivity` — apenas o autor ou admin pode excluir
+- [x] Componente `ActivityTimeline` em `/leads/[id]` listando atividades em ordem cronológica decrescente
+- [x] Componente `ActivityItem` — ícone por tipo (ligação, e-mail, reunião, nota), autor, data relativa
+- [x] Formulário inline "Registrar atividade" — tipo (select), descrição (textarea)
+- [x] Server Action `createActivity` — insere na tabela `activities`
+- [x] Server Action `deleteActivity` — apenas o autor pode excluir (admin também)
 - [ ] Skeleton loading enquanto carrega a timeline
 
 **Commit final:**
@@ -332,7 +332,7 @@ feat: registro de atividades — timeline cronológica e formulário inline no d
 - [x] Cálculo de Taxa de Conversão (`deals ganhos / total de deals × 100`)
 - [x] Query para dados do gráfico de funil (contagem por stage)
 - [x] Query para Deals com Prazo Próximo (ordenado por `due_date`, top 5)
-- [ ] Filtro de período funcionando via search params na URL
+- [x] Filtro de período funcionando via search params na URL (`?period=week|month|quarter`)
 
 **Commit final:**
 ```
