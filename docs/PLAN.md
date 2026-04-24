@@ -377,16 +377,16 @@ feat: M13 — monetização Stripe com checkout, webhook, limites e billing
 **Objetivo:** Todos os e-mails do produto enviados via Resend com templates HTML.
 
 **Entregas:**
-- [ ] Template `invite-email.tsx` — convite para workspace (nome do convidante, link de aceite)
-- [ ] Template `welcome-email.tsx` — boas-vindas após cadastro
-- [ ] Template `deal-reminder-email.tsx` — lembrete de deal com prazo próximo (opcional, futuro)
-- [ ] Função `sendEmail` utilitária em `src/lib/resend/send-email.ts`
-- [ ] Integrar envio de welcome email no fluxo de `signUp`
+- [x] Template `send-invite.ts` — convite para workspace (nome do convidante, link de aceite)
+- [x] Template `welcome-email.ts` — boas-vindas após cadastro com lista de features e CTA
+- [ ] Template `deal-reminder-email.ts` — lembrete de deal com prazo próximo (opcional, futuro)
+- [x] Função `sendEmail` utilitária em `src/lib/resend/send-email.ts`
+- [x] Integrar envio de welcome email no `/auth/callback` após confirmação de e-mail (`type=signup`)
 - [ ] Testar todos os templates no Resend dashboard
 
 **Commit final:**
 ```
-feat: e-mails transacionais via Resend — convite, boas-vindas e templates HTML
+feat: M14 — e-mails transacionais via Resend
 ```
 
 ---
