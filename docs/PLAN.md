@@ -347,25 +347,25 @@ feat: dashboard conectado ao Supabase — métricas reais, funil e deals próxim
 
 ### M13 — Stripe (Assinaturas)
 
-**Branch:** `feat/stripe`
+**Branch:** `feat/billing-nextjs`
 
 **Objetivo:** Planos Free e Pro funcionando com Stripe Checkout. Workspace bloqueado automaticamente quando limite do Free é atingido.
 
 **Entregas:**
-- [ ] Instalar `stripe` e `@stripe/stripe-js`
-- [ ] Criar produto e preço no Stripe Dashboard (R$49/mês, recorrente)
-- [ ] Server Action `createCheckoutSession` — redireciona para Stripe Checkout
-- [ ] Rota `/api/stripe/webhook` — recebe eventos `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`
-- [ ] Supabase Edge Function `stripe-webhook` ou Route Handler no Next.js para processar webhook e atualizar tabela `subscriptions`
-- [ ] Middleware de limite do Free: bloquear criação de lead se `count >= 50` ou membro se `count >= 2`
-- [ ] Componente `UpgradeBanner` exibido quando limite está próximo
-- [ ] Server Action `createPortalSession` — link para Stripe Customer Portal
-- [ ] Tela `/settings/billing` — plano atual, botão upgrade e link para portal
-- [ ] Variáveis: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- [x] Instalar `stripe` e `@stripe/stripe-js`
+- [x] Criar produto e preço no Stripe Dashboard (R$49/mês, recorrente)
+- [x] Server Action `createCheckoutSession` — redireciona para Stripe Checkout
+- [x] Rota `/api/webhooks/stripe` — recebe eventos `checkout.session.completed`, `customer.subscription.deleted`, `invoice.payment_failed`
+- [x] Route Handler no Next.js para processar webhook e atualizar tabela `subscriptions`
+- [x] Limite do Free: bloquear criação de lead se `count >= 50` na Server Action `createLead`
+- [x] Componente `UpgradeBanner` exibido quando limite está em 90% (45+ leads)
+- [x] Server Action `createPortalSession` — link para Stripe Customer Portal
+- [x] Tela `/settings/billing` — plano atual, data de renovação, botão upgrade e link para portal
+- [x] Variáveis: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_PRO_PRICE_ID`
 
 **Commit final:**
 ```
-feat: monetização com Stripe — checkout, webhook, planos e limites do Free
+feat: M13 — monetização Stripe com checkout, webhook, limites e billing
 ```
 
 ---
