@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { Lead } from "@/lib/mock/leads"
+import type { LeadRow } from "@/types/leads"
 import { LeadStatusBadge } from "./lead-status-badge"
 
 const PAGE_SIZE = 8
@@ -27,7 +27,7 @@ function getInitials(name: string): string {
 }
 
 interface LeadsTableProps {
-  leads: Lead[]
+  leads: LeadRow[]
 }
 
 export function LeadsTable({ leads }: LeadsTableProps) {
@@ -96,23 +96,31 @@ export function LeadsTable({ leads }: LeadsTableProps) {
                   >
                     {lead.name}
                   </Link>
-                  <p className="text-xs text-muted-foreground font-normal mt-0.5">{lead.role}</p>
+                  {lead.role && (
+                    <p className="text-xs text-muted-foreground font-normal mt-0.5">{lead.role}</p>
+                  )}
                 </td>
-                <td className="px-4 py-3 text-foreground">{lead.company}</td>
-                <td className="px-4 py-3 text-muted-foreground">{lead.email}</td>
+                <td className="px-4 py-3 text-foreground">{lead.company ?? "—"}</td>
+                <td className="px-4 py-3 text-muted-foreground">{lead.email ?? "—"}</td>
                 <td className="px-4 py-3">
                   <LeadStatusBadge status={lead.status} />
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-[10px] font-semibold">
-                      {getInitials(lead.owner)}
-                    </span>
-                    <span className="text-sm text-foreground">{lead.owner}</span>
-                  </div>
+                  {lead.owner_email ? (
+                    <div className="flex items-center gap-2">
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-[10px] font-semibold">
+                        {getInitials(lead.owner_email)}
+                      </span>
+                      <span className="text-sm text-foreground truncate max-w-[140px]">
+                        {lead.owner_email}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
-                  {formatDate(lead.createdAt)}
+                  {formatDate(lead.created_at)}
                 </td>
               </tr>
             ))}

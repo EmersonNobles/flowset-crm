@@ -1,48 +1,78 @@
+import { redirect } from "next/navigation"
 import { Briefcase, DollarSign, TrendingUp, Users } from "lucide-react"
-
+import { adminClient } from "@/lib/supabase/admin"
+import { getUserWorkspaces, getActiveWorkspaceId } from "@/lib/supabase/workspace"
 import { PageHeader } from "@/components/crm/page-header"
 import { MetricCard } from "@/components/dashboard/metric-card"
 import { FunnelChart, type FunnelDataPoint } from "@/components/dashboard/funnel-chart"
 import { UpcomingDeals } from "@/components/dashboard/upcoming-deals"
 import { PeriodSelector } from "@/components/dashboard/period-selector"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { mockDeals, PIPELINE_COLUMNS, STAGE_COLORS } from "@/lib/mock/deals"
-import { mockLeads } from "@/lib/mock/leads"
+import { PIPELINE_COLUMNS, STAGE_COLORS, type Deal, type DealStage } from "@/lib/mock/deals"
 
 const CLOSED = new Set(["fechado_ganho", "fechado_perdido"])
 
-export default function DashboardPage() {
-  const openDeals = mockDeals.filter((d) => !CLOSED.has(d.stage))
-  const wonDeals = mockDeals.filter((d) => d.stage === "fechado_ganho")
+const formatBRL = (value: number) =>
+  value.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
 
-  const totalLeads = mockLeads.length
+export default async function DashboardPage() {
+  const workspaces = await getUserWorkspaces()
+  const workspaceId = getActiveWorkspaceId(workspaces)
+  if (!workspaceId) redirect("/onboarding/workspace")
+
+  const [{ data: dealsData }, { data: leadsData, count: leadsCount }] = await Promise.all([
+    adminClient
+      .from("deals")
+      .select("*")
+      .eq("workspace_id", workspaceId),
+    adminClient
+      .from("leads")
+      .select("id, name, company", { count: "exact" })
+      .eq("workspace_id", workspaceId),
+  ])
+
+  const deals = dealsData ?? []
+  const openDeals = deals.filter((d) => !CLOSED.has(d.stage))
+  const wonDeals = deals.filter((d) => d.stage === "fechado_ganho")
+
+  const totalLeads = leadsCount ?? 0
   const openCount = openDeals.length
-  const pipelineValue = openDeals.reduce((sum, d) => sum + d.value, 0)
+  const pipelineValue = openDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
   const conversionRate =
-    Math.round((wonDeals.length / mockDeals.length) * 1000) / 10
+    deals.length > 0 ? Math.round((wonDeals.length / deals.length) * 1000) / 10 : 0
 
   const funnelData: FunnelDataPoint[] = PIPELINE_COLUMNS.map((col) => {
-    const stageDeals = mockDeals.filter((d) => d.stage === col.id)
+    const stageDeals = deals.filter((d) => d.stage === col.id)
     return {
       label: col.label,
       count: stageDeals.length,
       color: STAGE_COLORS[col.id].hex,
-      percent: Math.round((stageDeals.length / mockDeals.length) * 100),
-      totalValue: stageDeals.reduce((sum, d) => sum + d.value, 0),
+      percent: deals.length > 0 ? Math.round((stageDeals.length / deals.length) * 100) : 0,
+      totalValue: stageDeals.reduce((sum, d) => sum + (d.value ?? 0), 0),
     }
   })
 
-  const today = new Date().toISOString().slice(0, 10)
-  const upcomingDeals = [...openDeals]
-    .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
-    .slice(0, 5)
+  const leadInfoMap = new Map(
+    (leadsData ?? []).map((l) => [l.id, { name: l.name, company: l.company ?? "" }])
+  )
 
-  const formatBRL = (value: number) =>
-    value.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-      maximumFractionDigits: 0,
-    })
+  const today = new Date().toISOString().slice(0, 10)
+
+  const upcomingDeals: Deal[] = [...openDeals]
+    .sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? ""))
+    .slice(0, 5)
+    .map((d) => ({
+      id: d.id,
+      title: d.title,
+      value: d.value ?? 0,
+      leadId: d.lead_id ?? "",
+      leadName: d.lead_id ? (leadInfoMap.get(d.lead_id)?.name ?? "—") : "—",
+      leadCompany: d.lead_id ? (leadInfoMap.get(d.lead_id)?.company ?? "—") : "—",
+      owner: "",
+      stage: d.stage as DealStage,
+      dueDate: d.due_date ?? "",
+      createdAt: d.created_at,
+    }))
 
   return (
     <div>
@@ -53,42 +83,16 @@ export default function DashboardPage() {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          icon={Users}
-          label="Total de Leads"
-          value={String(totalLeads)}
-          change={12}
-          changeLabel="vs. mês anterior"
-        />
-        <MetricCard
-          icon={Briefcase}
-          label="Negócios Abertos"
-          value={String(openCount)}
-          change={8}
-          changeLabel="vs. mês anterior"
-        />
-        <MetricCard
-          icon={DollarSign}
-          label="Valor do Pipeline"
-          value={formatBRL(pipelineValue)}
-          change={-3}
-          changeLabel="vs. mês anterior"
-        />
-        <MetricCard
-          icon={TrendingUp}
-          label="Taxa de Conversão"
-          value={`${conversionRate}%`}
-          change={2}
-          changeLabel="vs. mês anterior"
-        />
+        <MetricCard icon={Users} label="Total de Leads" value={String(totalLeads)} />
+        <MetricCard icon={Briefcase} label="Negócios Abertos" value={String(openCount)} />
+        <MetricCard icon={DollarSign} label="Valor do Pipeline" value={formatBRL(pipelineValue)} />
+        <MetricCard icon={TrendingUp} label="Taxa de Conversão" value={`${conversionRate}%`} />
       </div>
 
       <div className="mt-4 flex flex-col gap-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-semibold">
-              Funil de Vendas
-            </CardTitle>
+            <CardTitle className="text-sm font-semibold">Funil de Vendas</CardTitle>
           </CardHeader>
           <CardContent>
             <FunnelChart data={funnelData} />

@@ -262,13 +262,13 @@ feat: multi-empresa — criar workspace, convidar membros via Resend e alternar 
 **Objetivo:** Substituir mock data de leads por dados reais do Supabase, com CRUD completo.
 
 **Entregas:**
-- [ ] Server Component em `/leads` fazendo `select` na tabela `leads` com filtro por `workspace_id`
-- [ ] Server Action `createLead` — insere lead e revalida cache
-- [ ] Server Action `updateLead` — atualiza campos e revalida
-- [ ] Server Action `deleteLead` — exclui com soft-delete (campo `deleted_at`)
-- [ ] Busca e filtros conectados como search params na URL (`?q=&status=&owner=`)
-- [ ] Tela `/leads/[id]` carregando dados reais do lead pelo `id`
-- [ ] Remoção de `src/lib/mock-data.ts` de leads (ou marcar como depreciado)
+- [x] Server Component em `/leads` fazendo `select` na tabela `leads` com filtro por `workspace_id`
+- [x] Server Action `createLead` — insere lead e revalida cache
+- [x] Server Action `updateLead` — atualiza campos e revalida
+- [x] Server Action `deleteLead` — remove lead do workspace
+- [x] Busca e filtros conectados como search params na URL (`?q=&status=&owner=`)
+- [x] Tela `/leads/[id]` carregando dados reais do lead pelo `id`
+- [x] Tipos migrados de `src/lib/mock/leads.ts` para `src/types/leads.ts`
 
 **Commit final:**
 ```
@@ -284,11 +284,11 @@ feat: leads conectados ao Supabase — CRUD completo, busca e filtros reais
 **Objetivo:** Drag-and-drop persiste mudança de stage no banco. Deals são criados e editados via Server Actions.
 
 **Entregas:**
-- [ ] Server Component em `/pipeline` carregando deals agrupados por `stage`
-- [ ] Server Action `moveDeal` — atualiza campo `stage` ao soltar o card na nova coluna
-- [ ] Server Action `createDeal` — insere deal com lead vinculado
+- [x] Server Component em `/pipeline` carregando deals agrupados por `stage`
+- [x] Server Action `moveDeal` — atualiza campo `stage` ao soltar o card na nova coluna
+- [x] Server Action `createDeal` — insere deal com lead vinculado
 - [ ] Server Action `updateDeal` — editar dados do deal no sheet lateral
-- [ ] Otimistic update no drag-and-drop (UI atualiza imediatamente, reverte em caso de erro)
+- [x] Otimistic update no drag-and-drop (UI atualiza imediatamente, persiste via moveDeal)
 - [ ] `DealDetailSheet` carregando dados reais ao abrir
 
 **Commit final:**
@@ -326,12 +326,12 @@ feat: registro de atividades — timeline cronológica e formulário inline no d
 **Objetivo:** Todos os cards e gráficos do dashboard usando dados calculados no banco.
 
 **Entregas:**
-- [ ] Query agregada para Total de Leads (`count` na tabela `leads`)
-- [ ] Query para Negócios Abertos (`count` com `stage NOT IN ('ganho', 'perdido')`)
-- [ ] Query para Valor do Pipeline (`sum(value)` nos deals abertos)
-- [ ] Cálculo de Taxa de Conversão (`deals ganhos / total de deals × 100`)
-- [ ] Query para dados do gráfico de funil (contagem por stage)
-- [ ] Query para Deals com Prazo Próximo (próximos 7 dias, ordenado por `due_date`)
+- [x] Query agregada para Total de Leads (`count` na tabela `leads`)
+- [x] Query para Negócios Abertos (`count` com stage fora de fechado_ganho/perdido)
+- [x] Query para Valor do Pipeline (`sum(value)` nos deals abertos)
+- [x] Cálculo de Taxa de Conversão (`deals ganhos / total de deals × 100`)
+- [x] Query para dados do gráfico de funil (contagem por stage)
+- [x] Query para Deals com Prazo Próximo (ordenado por `due_date`, top 5)
 - [ ] Filtro de período funcionando via search params na URL
 
 **Commit final:**

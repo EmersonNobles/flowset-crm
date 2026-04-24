@@ -1,9 +1,11 @@
 "use client"
 
+import { useEffect, useState, useTransition } from "react"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { Search, X } from "lucide-react"
-import type { LeadStatus } from "@/lib/mock/leads"
+import type { MemberOption } from "@/types/leads"
 
-const statusOptions: { value: LeadStatus | "all"; label: string }[] = [
+const statusOptions = [
   { value: "all", label: "Todos os status" },
   { value: "novo", label: "Novo" },
   { value: "contato", label: "Contato" },
@@ -14,26 +16,36 @@ const statusOptions: { value: LeadStatus | "all"; label: string }[] = [
 ]
 
 interface LeadsFiltersProps {
-  search: string
-  onSearchChange: (value: string) => void
-  statusFilter: string
-  onStatusFilterChange: (value: string) => void
-  ownerFilter: string
-  onOwnerFilterChange: (value: string) => void
-  owners: string[]
+  owners: MemberOption[]
+  currentQ: string
+  currentStatus: string
+  currentOwner: string
 }
 
-export function LeadsFilters({
-  search,
-  onSearchChange,
-  statusFilter,
-  onStatusFilterChange,
-  ownerFilter,
-  onOwnerFilterChange,
-  owners,
-}: LeadsFiltersProps) {
-  const hasActiveFilters =
-    search !== "" || statusFilter !== "all" || ownerFilter !== "all"
+export function LeadsFilters({ owners, currentQ, currentStatus, currentOwner }: LeadsFiltersProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const [, startTransition] = useTransition()
+
+  const [search, setSearch] = useState(currentQ)
+  const hasActiveFilters = search !== "" || currentStatus !== "all" || currentOwner !== "all"
+
+  const pushParams = (updates: Record<string, string>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    for (const [key, value] of Object.entries(updates)) {
+      if (!value || value === "all") params.delete(key)
+      else params.set(key, value)
+    }
+    startTransition(() => router.push(`${pathname}?${params.toString()}`))
+  }
+
+  // Debounce search input → URL
+  useEffect(() => {
+    const timer = setTimeout(() => pushParams({ q: search }), 300)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search])
 
   const selectClass =
     "h-8 rounded-lg border border-border bg-background px-2.5 text-sm text-foreground outline-none focus:border-ring focus:ring-3 focus:ring-ring/50 transition-all cursor-pointer"
@@ -46,14 +58,14 @@ export function LeadsFilters({
           type="text"
           placeholder="Buscar por nome, empresa ou e-mail..."
           value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           className="h-8 w-full rounded-lg border border-border bg-background pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-ring focus:ring-3 focus:ring-ring/50 transition-all"
         />
       </div>
 
       <select
-        value={statusFilter}
-        onChange={(e) => onStatusFilterChange(e.target.value)}
+        value={currentStatus}
+        onChange={(e) => pushParams({ status: e.target.value })}
         className={selectClass}
       >
         {statusOptions.map((opt) => (
@@ -64,14 +76,14 @@ export function LeadsFilters({
       </select>
 
       <select
-        value={ownerFilter}
-        onChange={(e) => onOwnerFilterChange(e.target.value)}
+        value={currentOwner}
+        onChange={(e) => pushParams({ owner: e.target.value })}
         className={selectClass}
       >
         <option value="all">Todos os responsáveis</option>
-        {owners.map((owner) => (
-          <option key={owner} value={owner}>
-            {owner}
+        {owners.map((m) => (
+          <option key={m.id} value={m.id}>
+            {m.email}
           </option>
         ))}
       </select>
@@ -79,9 +91,8 @@ export function LeadsFilters({
       {hasActiveFilters && (
         <button
           onClick={() => {
-            onSearchChange("")
-            onStatusFilterChange("all")
-            onOwnerFilterChange("all")
+            setSearch("")
+            pushParams({ q: "", status: "", owner: "" })
           }}
           className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >

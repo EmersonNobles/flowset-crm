@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Plus } from "lucide-react"
 import {
   DndContext,
@@ -20,7 +20,8 @@ import {
   arrayMove,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable"
-import { mockDeals, PIPELINE_COLUMNS, STAGE_COLORS, type Deal, type DealStage } from "@/lib/mock/deals"
+import { PIPELINE_COLUMNS, STAGE_COLORS, type Deal, type DealStage } from "@/lib/mock/deals"
+import { moveDeal } from "@/app/actions/deals"
 import { PageHeader } from "@/components/crm/page-header"
 import { Button } from "@/components/ui/button"
 import { KanbanColumn } from "./kanban-column"
@@ -28,6 +29,8 @@ import { DealFormDialog } from "@/components/pipeline/deal-form-dialog"
 import { DealDetailSheet } from "./deal-detail-sheet"
 
 type ColumnMap = Record<DealStage, Deal[]>
+
+export type AvailableLead = { id: string; name: string; company: string }
 
 function buildColumnMap(deals: Deal[]): ColumnMap {
   const map = {} as ColumnMap
@@ -47,12 +50,22 @@ function isDealStage(id: string): id is DealStage {
   return PIPELINE_COLUMNS.some((col) => col.id === id)
 }
 
-export function KanbanBoard() {
-  const [columns, setColumns] = useState<ColumnMap>(() => buildColumnMap(mockDeals))
+interface KanbanBoardProps {
+  initialDeals: Deal[]
+  availableLeads: AvailableLead[]
+}
+
+export function KanbanBoard({ initialDeals, availableLeads }: KanbanBoardProps) {
+  const [columns, setColumns] = useState<ColumnMap>(() => buildColumnMap(initialDeals))
   const [activeId, setActiveId] = useState<string | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [createStage, setCreateStage] = useState<DealStage>("novo_lead")
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null)
+
+  // Always-fresh ref to avoid stale closure in drag handlers
+  const columnsRef = useRef(columns)
+  columnsRef.current = columns
+  const dragStartStageRef = useRef<DealStage | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -65,7 +78,9 @@ export function KanbanBoard() {
     : null
 
   function handleDragStart({ active }: DragStartEvent) {
-    setActiveId(active.id as string)
+    const id = active.id as string
+    setActiveId(id)
+    dragStartStageRef.current = findDealStage(columnsRef.current, id) ?? null
   }
 
   function handleDragOver({ active, over }: DragOverEvent) {
@@ -104,25 +119,40 @@ export function KanbanBoard() {
   }
 
   function handleDragEnd({ active, over }: DragEndEvent) {
+    const activeId = active.id as string
+    const startStage = dragStartStageRef.current
+    dragStartStageRef.current = null
     setActiveId(null)
+
     if (!over) return
 
-    const activeId = active.id as string
     const overId = over.id as string
 
-    setColumns((prev) => {
-      const stage = findDealStage(prev, activeId)
-      if (!stage) return prev
+    // columnsRef.current has been updated by DragOver — read final stage from it
+    const finalStage = findDealStage(columnsRef.current, activeId)
 
-      const overStage = isDealStage(overId) ? overId : findDealStage(prev, overId)
-      if (overStage !== stage) return prev
+    // Persist cross-column move to DB
+    if (startStage && finalStage && finalStage !== startStage) {
+      moveDeal(activeId, finalStage).catch(console.error)
+      return
+    }
 
-      const deals = prev[stage]
-      const oldIndex = deals.findIndex((d) => d.id === activeId)
-      const newIndex = deals.findIndex((d) => d.id === overId)
-      if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return prev
-      return { ...prev, [stage]: arrayMove(deals, oldIndex, newIndex) }
-    })
+    // Same-column reorder
+    if (finalStage) {
+      setColumns((prev) => {
+        const stage = findDealStage(prev, activeId)
+        if (!stage) return prev
+
+        const overStage = isDealStage(overId) ? overId : findDealStage(prev, overId)
+        if (overStage !== stage) return prev
+
+        const deals = prev[stage]
+        const oldIndex = deals.findIndex((d) => d.id === activeId)
+        const newIndex = deals.findIndex((d) => d.id === overId)
+        if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return prev
+        return { ...prev, [stage]: arrayMove(deals, oldIndex, newIndex) }
+      })
+    }
   }
 
   const totalPipelineValue = Object.values(columns)
@@ -138,7 +168,6 @@ export function KanbanBoard() {
 
   return (
     <>
-      {/* Header */}
       <div className="shrink-0 px-4 md:px-6 pt-4 md:pt-6">
         <PageHeader
           title="Pipeline"
@@ -152,7 +181,6 @@ export function KanbanBoard() {
         />
       </div>
 
-      {/* Board */}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -201,7 +229,12 @@ export function KanbanBoard() {
         </DragOverlay>
       </DndContext>
 
-      <DealFormDialog open={createOpen} onOpenChange={setCreateOpen} initialStage={createStage} />
+      <DealFormDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        initialStage={createStage}
+        availableLeads={availableLeads}
+      />
 
       <DealDetailSheet
         deal={selectedDeal}

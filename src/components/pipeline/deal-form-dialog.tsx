@@ -1,21 +1,21 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { PIPELINE_COLUMNS, OWNERS, type DealStage } from "@/lib/mock/deals"
-import { mockLeads } from "@/lib/mock/leads"
+import { PIPELINE_COLUMNS, type DealStage } from "@/lib/mock/deals"
+import { createDeal } from "@/app/actions/deals"
+import type { AvailableLead } from "@/components/crm/kanban-board"
 
 const dealSchema = z.object({
   title: z.string().min(1, "Título é obrigatório"),
   value: z.number().min(1, "Valor deve ser maior que zero"),
-  leadId: z.string().min(1, "Selecione um lead"),
-  owner: z.string().min(1, "Selecione um responsável"),
-  dueDate: z.string().min(1, "Prazo é obrigatório"),
+  leadId: z.string().optional(),
+  dueDate: z.string().optional(),
   stage: z.enum([
     "novo_lead",
     "contato_realizado",
@@ -24,7 +24,6 @@ const dealSchema = z.object({
     "fechado_ganho",
     "fechado_perdido",
   ]),
-  notes: z.string().optional(),
 })
 
 type DealFormData = z.infer<typeof dealSchema>
@@ -45,45 +44,44 @@ interface DealFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   initialStage?: DealStage
+  availableLeads: AvailableLead[]
 }
 
-export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead" }: DealFormDialogProps) {
+export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead", availableLeads }: DealFormDialogProps) {
+  const [serverError, setServerError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<DealFormData>({
     resolver: zodResolver(dealSchema),
-    defaultValues: {
-      title: "",
-      value: undefined,
-      leadId: "",
-      owner: "",
-      dueDate: "",
-      stage: initialStage,
-      notes: "",
-    },
+    defaultValues: { title: "", value: undefined, leadId: "", dueDate: "", stage: initialStage },
   })
 
   useEffect(() => {
     if (open) {
-      reset({
-        title: "",
-        value: undefined,
-        leadId: "",
-        owner: "",
-        dueDate: "",
-        stage: initialStage,
-        notes: "",
-      })
+      setServerError(null)
+      reset({ title: "", value: undefined, leadId: "", dueDate: "", stage: initialStage })
     }
   }, [open, initialStage, reset])
 
-  const onSubmit = async (data: DealFormData) => {
-    await new Promise((r) => setTimeout(r, 400))
-    console.log("Deal criado:", data)
-    onOpenChange(false)
+  const onSubmit = (data: DealFormData) => {
+    setServerError(null)
+    const formData = new FormData()
+    formData.set("title", data.title)
+    formData.set("value", String(data.value))
+    formData.set("leadId", data.leadId ?? "")
+    formData.set("dueDate", data.dueDate ?? "")
+    formData.set("stage", data.stage)
+
+    startTransition(async () => {
+      const result = await createDeal(formData)
+      if (result?.error) setServerError(result.error)
+      else onOpenChange(false)
+    })
   }
 
   if (!open) return null
@@ -95,7 +93,6 @@ export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead" 
         onClick={() => onOpenChange(false)}
       />
       <div className="relative z-50 w-full max-w-md mx-4 bg-card rounded-xl shadow-2xl border border-border/60 max-h-[90vh] flex flex-col">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border/60 shrink-0">
           <h2 className="font-display text-base font-semibold text-foreground">Novo Negócio</h2>
           <button
@@ -108,7 +105,6 @@ export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead" 
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
-            {/* Title */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground">
                 Título <span className="text-destructive">*</span>
@@ -121,11 +117,10 @@ export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead" 
               {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
             </div>
 
-            {/* Value + Stage */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-foreground">
-                  Valor estimado (R$) <span className="text-destructive">*</span>
+                  Valor (R$) <span className="text-destructive">*</span>
                 </label>
                 <input
                   {...register("value", { valueAsNumber: true })}
@@ -150,67 +145,40 @@ export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead" 
               </div>
             </div>
 
-            {/* Lead */}
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground">
-                Lead vinculado <span className="text-destructive">*</span>
-              </label>
+              <label className="text-sm font-medium text-foreground">Lead vinculado</label>
               <select {...register("leadId")} className={selectClass}>
-                <option value="">Selecione um lead</option>
-                {mockLeads.map((lead) => (
+                <option value="">Selecione um lead (opcional)</option>
+                {availableLeads.map((lead) => (
                   <option key={lead.id} value={lead.id}>
-                    {lead.name} — {lead.company}
+                    {lead.name}{lead.company ? ` — ${lead.company}` : ""}
                   </option>
                 ))}
               </select>
-              {errors.leadId && <p className="text-xs text-destructive">{errors.leadId.message}</p>}
             </div>
 
-            {/* Owner + Due date */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">Responsável</label>
-                <select {...register("owner")} className={selectClass}>
-                  <option value="">Selecione</option>
-                  {OWNERS.map((o) => (
-                    <option key={o} value={o}>{o}</option>
-                  ))}
-                </select>
-                {errors.owner && <p className="text-xs text-destructive">{errors.owner.message}</p>}
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">Prazo</label>
-                <input
-                  {...register("dueDate")}
-                  type="date"
-                  className={fieldClass(!!errors.dueDate)}
-                />
-                {errors.dueDate && <p className="text-xs text-destructive">{errors.dueDate.message}</p>}
-              </div>
-            </div>
-
-            {/* Notes */}
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground">Observações</label>
-              <textarea
-                {...register("notes")}
-                rows={3}
-                className={cn(
-                  fieldClass(false),
-                  "h-auto resize-none py-2 leading-relaxed"
-                )}
-                placeholder="Contexto, detalhes relevantes..."
+              <label className="text-sm font-medium text-foreground">Prazo</label>
+              <input
+                {...register("dueDate")}
+                type="date"
+                className={fieldClass(false)}
               />
             </div>
+
+            {serverError && (
+              <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
+                {serverError}
+              </p>
+            )}
           </div>
 
-          {/* Footer */}
           <div className="flex justify-end gap-2 px-6 py-4 border-t border-border/60 shrink-0">
-            <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={isPending}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Criando..." : "Criar Negócio"}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Criando..." : "Criar Negócio"}
             </Button>
           </div>
         </form>

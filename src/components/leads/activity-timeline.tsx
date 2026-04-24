@@ -1,9 +1,9 @@
 import { MessageSquare } from "lucide-react"
-import type { Activity } from "@/lib/mock/leads"
+import type { ActivityRow } from "@/types/leads"
 import { ActivityItem } from "./activity-item"
 
 interface ActivityTimelineProps {
-  activities: Activity[]
+  activities: ActivityRow[]
 }
 
 export function ActivityTimeline({ activities }: ActivityTimelineProps) {

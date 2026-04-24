@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Mail, Phone, Building2, Briefcase, Calendar, User, Edit, Trash2 } from "lucide-react"
-import type { Lead } from "@/lib/mock/leads"
+import type { LeadRow } from "@/types/leads"
 import { LeadStatusBadge } from "./lead-status-badge"
 import { LeadFormDialog } from "./lead-form-dialog"
 
@@ -24,17 +25,17 @@ function getInitials(name: string): string {
 }
 
 interface LeadProfileCardProps {
-  lead: Lead
+  lead: LeadRow
 }
 
 export function LeadProfileCard({ lead }: LeadProfileCardProps) {
+  const router = useRouter()
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
 
   return (
     <>
       <div className="rounded-xl border border-border bg-background p-6">
-        {/* Avatar + name + actions */}
         <div className="flex items-start justify-between gap-3 mb-6">
           <div className="flex items-center gap-3">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-lg font-semibold">
@@ -44,7 +45,7 @@ export function LeadProfileCard({ lead }: LeadProfileCardProps) {
               <h2 className="text-base font-semibold text-foreground leading-tight">
                 {lead.name}
               </h2>
-              <p className="text-sm text-muted-foreground">{lead.role}</p>
+              {lead.role && <p className="text-sm text-muted-foreground">{lead.role}</p>}
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
@@ -52,7 +53,6 @@ export function LeadProfileCard({ lead }: LeadProfileCardProps) {
           </div>
         </div>
 
-        {/* Action buttons */}
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setEditOpen(true)}
@@ -70,17 +70,18 @@ export function LeadProfileCard({ lead }: LeadProfileCardProps) {
           </button>
         </div>
 
-        {/* Details */}
         <div className="space-y-3">
-          <div className="flex items-center gap-3 text-sm">
-            <Mail className="size-4 text-muted-foreground shrink-0" />
-            <a
-              href={`mailto:${lead.email}`}
-              className="text-foreground hover:text-primary transition-colors truncate"
-            >
-              {lead.email}
-            </a>
-          </div>
+          {lead.email && (
+            <div className="flex items-center gap-3 text-sm">
+              <Mail className="size-4 text-muted-foreground shrink-0" />
+              <a
+                href={`mailto:${lead.email}`}
+                className="text-foreground hover:text-primary transition-colors truncate"
+              >
+                {lead.email}
+              </a>
+            </div>
+          )}
           {lead.phone && (
             <div className="flex items-center gap-3 text-sm">
               <Phone className="size-4 text-muted-foreground shrink-0" />
@@ -101,17 +102,25 @@ export function LeadProfileCard({ lead }: LeadProfileCardProps) {
           )}
           <div className="flex items-center gap-3 text-sm">
             <User className="size-4 text-muted-foreground shrink-0" />
-            <span className="text-foreground">Responsável: {lead.owner}</span>
+            <span className="text-foreground">
+              Responsável: {lead.owner_email ?? "—"}
+            </span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <Calendar className="size-4 text-muted-foreground shrink-0" />
-            <span className="text-muted-foreground">Criado em {formatDate(lead.createdAt)}</span>
+            <span className="text-muted-foreground">Criado em {formatDate(lead.created_at)}</span>
           </div>
         </div>
       </div>
 
       <LeadFormDialog mode="edit" lead={lead} open={editOpen} onOpenChange={setEditOpen} />
-      <LeadFormDialog mode="delete" lead={lead} open={deleteOpen} onOpenChange={setDeleteOpen} />
+      <LeadFormDialog
+        mode="delete"
+        lead={lead}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onSuccess={() => router.push("/leads")}
+      />
     </>
   )
 }

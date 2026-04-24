@@ -1,13 +1,14 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import type { Lead, LeadStatus } from "@/lib/mock/leads"
+import { createLead, updateLead, deleteLead } from "@/app/actions/leads"
+import type { LeadRow, LeadStatus } from "@/types/leads"
 
 const leadSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -33,9 +34,10 @@ export type LeadFormDialogMode = "create" | "edit" | "delete"
 
 interface LeadFormDialogProps {
   mode: LeadFormDialogMode
-  lead?: Lead
+  lead?: LeadRow
   open: boolean
   onOpenChange: (open: boolean) => void
+  onSuccess?: () => void
 }
 
 const inputClass = (hasError: boolean) =>
@@ -46,12 +48,15 @@ const inputClass = (hasError: boolean) =>
       : "border-border focus:border-ring"
   )
 
-export function LeadFormDialog({ mode, lead, open, onOpenChange }: LeadFormDialogProps) {
+export function LeadFormDialog({ mode, lead, open, onOpenChange, onSuccess }: LeadFormDialogProps) {
+  const [serverError, setServerError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LeadFormData>({
     resolver: zodResolver(leadSchema),
     defaultValues: { name: "", email: "", phone: "", company: "", role: "", status: "novo" },
@@ -59,13 +64,14 @@ export function LeadFormDialog({ mode, lead, open, onOpenChange }: LeadFormDialo
 
   useEffect(() => {
     if (!open) return
+    setServerError(null)
     if (mode === "edit" && lead) {
       reset({
         name: lead.name,
-        email: lead.email,
-        phone: lead.phone,
-        company: lead.company,
-        role: lead.role,
+        email: lead.email ?? "",
+        phone: lead.phone ?? "",
+        company: lead.company ?? "",
+        role: lead.role ?? "",
         status: lead.status,
       })
     } else if (mode === "create") {
@@ -73,16 +79,31 @@ export function LeadFormDialog({ mode, lead, open, onOpenChange }: LeadFormDialo
     }
   }, [open, mode, lead, reset])
 
-  const onSubmit = async (data: LeadFormData) => {
-    await new Promise((r) => setTimeout(r, 400))
-    console.log("Lead salvo:", data)
-    onOpenChange(false)
+  const onSubmit = (data: LeadFormData) => {
+    setServerError(null)
+    const formData = new FormData()
+    formData.set("name", data.name)
+    formData.set("email", data.email)
+    formData.set("phone", data.phone ?? "")
+    formData.set("company", data.company ?? "")
+    formData.set("role", data.role ?? "")
+    formData.set("status", data.status)
+
+    startTransition(async () => {
+      const result = mode === "create"
+        ? await createLead(formData)
+        : await updateLead(lead!.id, formData)
+      if (result?.error) setServerError(result.error)
+      else { onOpenChange(false); onSuccess?.() }
+    })
   }
 
-  const onDelete = async () => {
-    await new Promise((r) => setTimeout(r, 400))
-    console.log("Lead excluído:", lead?.id)
-    onOpenChange(false)
+  const onDelete = () => {
+    startTransition(async () => {
+      const result = await deleteLead(lead!.id)
+      if (result?.error) setServerError(result.error)
+      else { onOpenChange(false); onSuccess?.() }
+    })
   }
 
   const title = { create: "Novo Lead", edit: "Editar Lead", delete: "Excluir Lead" }[mode]
@@ -96,7 +117,6 @@ export function LeadFormDialog({ mode, lead, open, onOpenChange }: LeadFormDialo
         onClick={() => onOpenChange(false)}
       />
       <div className="relative z-50 w-full max-w-md mx-4 bg-background rounded-xl shadow-xl border border-border">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h2 className="text-base font-semibold text-foreground">{title}</h2>
           <button
@@ -114,12 +134,17 @@ export function LeadFormDialog({ mode, lead, open, onOpenChange }: LeadFormDialo
               <span className="font-medium text-foreground">{lead?.name}</span>? Esta ação não
               pode ser desfeita.
             </p>
+            {serverError && (
+              <p className="mt-3 text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
+                {serverError}
+              </p>
+            )}
             <div className="mt-5 flex justify-end gap-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
+              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
                 Cancelar
               </Button>
-              <Button variant="destructive" onClick={onDelete}>
-                Excluir
+              <Button variant="destructive" onClick={onDelete} disabled={isPending}>
+                {isPending ? "Excluindo..." : "Excluir"}
               </Button>
             </div>
           </div>
@@ -197,14 +222,20 @@ export function LeadFormDialog({ mode, lead, open, onOpenChange }: LeadFormDialo
                   </select>
                 </div>
               </div>
+
+              {serverError && (
+                <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
+                  {serverError}
+                </p>
+              )}
             </div>
 
             <div className="flex justify-end gap-2 px-6 py-4 border-t border-border">
-              <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
+              <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={isPending}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Salvando..." : mode === "create" ? "Criar Lead" : "Salvar"}
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Salvando..." : mode === "create" ? "Criar Lead" : "Salvar"}
               </Button>
             </div>
           </form>
