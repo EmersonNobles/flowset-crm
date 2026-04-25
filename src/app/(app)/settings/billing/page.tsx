@@ -53,7 +53,7 @@ export default async function BillingPage({
     : null
 
   return (
-    <div className="max-w-2xl">
+    <div className="w-full max-w-2xl">
       <div className="mb-6">
         <Link
           href="/settings"

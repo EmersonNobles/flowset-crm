@@ -44,7 +44,7 @@ export default async function TeamPage() {
   const atLimit = activeWorkspace.plan === "free" && memberCount >= FREE_MEMBER_LIMIT
 
   return (
-    <div className="max-w-2xl">
+    <div className="w-full max-w-2xl">
       <PageHeader
         title="Equipe"
         subtitle={`${activeWorkspace.name} · ${memberCount} membro${memberCount !== 1 ? "s" : ""}`}

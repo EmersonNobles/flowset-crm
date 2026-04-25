@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit -m ' *)",
+      "Bash(git commit -m 'fix: sendInviteEmail fire-and-forget — não bloqueia resposta da action *)",
+      "Bash(git commit -m 'fix: remetente Resend — usar onboarding@resend.dev sem domínio verificado *)",
+      "Bash(git commit -m 'fix: acceptInvite retorna { ok } em vez de redirect\\(\\) — evita NEXT_REDIRECT engolido pelo try-catch do cliente *)",
+      "Bash(git commit -m 'fix: emailRedirectTo preserva ?next= para retornar ao convite após confirmação *)",
+      "Bash(node -e ' *)",
+      "Bash(git commit -m 'fix: feedback de e-mail no convite e race condition no kanban *)",
+      "Bash(git commit -m 'docs: marca M8 como concluído no PLAN.md *)",
+      "Bash(git commit -m 'feat: leads conectados ao Supabase — CRUD completo, busca e filtros reais *)",
+      "Bash(git commit -m 'fix+feat: review M9, implementar M10 \\(pipeline real\\) e M12 \\(dashboard real\\) *)",
+      "Bash(npx next *)",
+      "Bash(node -e \"const pkg = require\\('./package.json'\\); console.log\\(pkg.dependencies.next\\)\")",
+      "Bash(node -e \"require\\('stripe'\\); console.log\\('stripe ok'\\)\")",
+      "Bash(node -e \"const s = require\\('stripe'\\); console.log\\(require\\('./node_modules/stripe/package.json'\\).version\\)\")",
+      "Bash(npm list *)",
+      "Bash(node -e \"const Stripe = require\\('stripe'\\); const s = new Stripe\\('sk_test_x'\\); console.log\\(Object.keys\\(require\\('stripe'\\).Stripe || {}\\).filter\\(k => k.includes\\('Invoice'\\)\\)\\)\")",
+      "Bash(node -e \"const Stripe = require\\('stripe'\\); const keys = Object.keys\\(require\\('stripe'\\)\\); console.log\\(keys.slice\\(0,10\\)\\)\")",
+      "Bash(xargs grep *)",
+      "Bash(git commit -m 'docs: marca M13 como concluído no PLAN.md *)",
+      "Bash(git commit -m 'docs: marca M14 como concluído no PLAN.md *)",
+      "Bash(git commit -m 'docs: corrige atribuição do send-invite no M14 — criado no M8, refatorado no M14 *)",
+      "Bash(git add *)",
+      "Bash(git rm *)",
+      "Bash(npm run *)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(git -C \"C:/Users/User/Desktop/CLASS_FLOWSET_CRM\" diff --name-only HEAD~1)",
+      "Bash(git -C \"C:/Users/User/Desktop/CLASS_FLOWSET_CRM\" log --oneline -10)",
+      "Bash(git -C \"C:/Users/User/Desktop/CLASS_FLOWSET_CRM\" ls-files --error-unmatch .env.local)",
+      "Bash(git -C \"C:/Users/User/Desktop/CLASS_FLOWSET_CRM\" log --all --full-history -- \".env.local\" \".env\")",
+      "Bash(npm audit *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); vulns=d.get\\('vulnerabilities',{}\\); [print\\(k, v['severity'], v.get\\('via',[]\\)[0] if isinstance\\(v.get\\('via',[]\\)[0], str\\) else v.get\\('via',[]\\)[0].get\\('title',''\\)\\) for k,v in vulns.items\\(\\)]\")",
+      "Bash(xargs ls *)",
+      "Bash(grep -rn \"email.*workspaceName\\\\|workspaceName.*email\\\\|html.*\\\\${\" \"C:/Users/User/Desktop/CLASS_FLOWSET_CRM/src/lib/resend\")"
+    ]
+  },
+  "git.ignoreLimitWarning": true
+}

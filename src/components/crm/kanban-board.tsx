@@ -188,8 +188,8 @@ export function KanbanBoard({ initialDeals, availableLeads }: KanbanBoardProps) 
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden px-4 md:px-6 pb-4 md:pb-6">
-          <div className="flex gap-2.5 h-full min-w-max py-1">
+        <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden px-4 md:px-6 pb-4 md:pb-6 scrollbar-thin">
+          <div className="flex gap-2.5 h-full min-w-max py-1" style={{ touchAction: "pan-x" }}>
             {PIPELINE_COLUMNS.map((col) => (
               <SortableContext
                 key={col.id}

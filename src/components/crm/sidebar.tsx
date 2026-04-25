@@ -83,19 +83,22 @@ export function Sidebar() {
       </button>
 
       {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="md:hidden fixed inset-0 z-40 bg-black/50"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
+      <div
+        className={cn(
+          "md:hidden fixed inset-0 z-40 bg-black/50 transition-opacity duration-200",
+          mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
+        onClick={() => setMobileOpen(false)}
+        aria-hidden="true"
+      />
 
       {/* Mobile drawer */}
       <aside
         className={cn(
-          "md:hidden fixed inset-y-0 left-0 z-50 flex flex-col w-56 bg-card border-r border-border transition-transform duration-200",
+          "md:hidden fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-card border-r border-border transition-transform duration-200 ease-out",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
+        aria-label="Menu de navegação"
       >
         <SidebarLogo />
         <NavLinks onNavigate={() => setMobileOpen(false)} />
