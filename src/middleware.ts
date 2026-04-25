@@ -38,8 +38,8 @@ export async function middleware(request: NextRequest) {
   const isAuthPath = authPaths.includes(pathname)
   const isAppPath = appPaths.some((p) => pathname.startsWith(p))
 
-  // Usuário logado tentando acessar páginas de auth → redireciona para dashboard
-  if (user && isAuthPath) {
+  // Usuário logado na raiz ou em páginas de auth → redireciona para dashboard
+  if (user && (pathname === "/" || isAuthPath)) {
     return NextResponse.redirect(new URL("/dashboard", request.url))
   }
 

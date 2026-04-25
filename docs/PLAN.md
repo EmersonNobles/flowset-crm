@@ -402,14 +402,14 @@ feat: M14 — e-mails transacionais via Resend
 **Objetivo:** Página pública de apresentação do FlowSet CRM em `/`, otimizada para conversão.
 
 **Entregas:**
-- [ ] Layout `src/app/(marketing)/layout.tsx` — navbar pública com logo e CTA
-- [ ] Seção **Hero** — headline, subtítulo, CTA "Comece grátis", screenshot do app (mock ou real)
-- [ ] Seção **Funcionalidades** — 6 cards com ícone, título e descrição (Leads, Kanban, Dashboard, Multi-empresa, Atividades, Planos)
-- [ ] Seção **Como funciona** — 3 passos (Crie seu workspace → Adicione leads → Feche negócios)
-- [ ] Seção **Preços** — 2 cards (Free e Pro) com lista de features e CTA de cada plano
-- [ ] Seção **CTA Final** — headline + botão "Criar conta grátis"
-- [ ] Footer simples com links
-- [ ] SEO básico: `metadata` com título, descrição e OG tags em `layout.tsx`
+- [x] Layout `src/app/(marketing)/layout.tsx` — navbar pública com logo e CTA
+- [x] Seção **Hero** — headline, subtítulo, CTA "Comece grátis", screenshot do app (mock ou real)
+- [x] Seção **Funcionalidades** — 6 cards com ícone, título e descrição (Leads, Kanban, Dashboard, Multi-empresa, Atividades, Planos)
+- [x] Seção **Como funciona** — 3 passos (Crie seu workspace → Adicione leads → Feche negócios)
+- [x] Seção **Preços** — 2 cards (Free e Pro) com lista de features e CTA de cada plano
+- [x] Seção **CTA Final** — headline + botão "Criar conta grátis"
+- [x] Footer simples com links
+- [x] SEO básico: `metadata` com título, descrição e OG tags em `layout.tsx`
 
 **Commit final:**
 ```
