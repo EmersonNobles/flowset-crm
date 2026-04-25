@@ -37,8 +37,17 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
 
   if (!leadData) notFound()
 
-  const { data: { users } } = await adminClient.auth.admin.listUsers()
-  const userEmailMap = new Map(users.map((u) => [u.id, u.email ?? u.id]))
+  const authorIds = [
+    ...(leadData.owner_id ? [leadData.owner_id] : []),
+    ...new Set((activitiesData ?? []).map((a) => a.author_id).filter(Boolean) as string[]),
+  ]
+  const userEmailMap = new Map<string, string>()
+  await Promise.all(
+    authorIds.map(async (id) => {
+      const { data } = await adminClient.auth.admin.getUserById(id)
+      if (data.user) userEmailMap.set(id, data.user.email ?? id)
+    })
+  )
 
   const lead: LeadRow = {
     ...leadData,

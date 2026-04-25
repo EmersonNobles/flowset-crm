@@ -72,7 +72,7 @@ export default async function TeamPage() {
             <Mail className="size-4 text-muted-foreground" />
             <h2 className="text-sm font-semibold text-foreground">Convidar por e-mail</h2>
           </div>
-          <InviteForm workspaceId={workspaceId} />
+          <InviteForm />
         </div>
       )}
 
@@ -90,7 +90,6 @@ export default async function TeamPage() {
               key={m.id}
               member={m}
               currentUserId={user.id}
-              workspaceId={workspaceId}
               isAdmin={isAdmin}
             />
           ))}
@@ -111,7 +110,7 @@ export default async function TeamPage() {
           </div>
           <div className="divide-y divide-border">
             {invites.map((inv) => (
-              <InviteRow key={inv.id} invite={inv} workspaceId={workspaceId} />
+              <InviteRow key={inv.id} invite={inv} />
             ))}
           </div>
         </div>

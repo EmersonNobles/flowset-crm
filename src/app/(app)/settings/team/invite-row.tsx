@@ -14,7 +14,6 @@ type Invite = {
 
 interface Props {
   invite: Invite
-  workspaceId: string
 }
 
 function daysUntil(dateStr: string) {
@@ -22,7 +21,7 @@ function daysUntil(dateStr: string) {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
 }
 
-export function InviteRow({ invite, workspaceId }: Props) {
+export function InviteRow({ invite }: Props) {
   const [isPending, startTransition] = useTransition()
 
   function handleRevoke(formData: FormData) {
@@ -51,7 +50,6 @@ export function InviteRow({ invite, workspaceId }: Props) {
       </span>
 
       <form action={handleRevoke}>
-        <input type="hidden" name="workspace_id" value={workspaceId} />
         <input type="hidden" name="invite_id" value={invite.id} />
         <button
           type="submit"
