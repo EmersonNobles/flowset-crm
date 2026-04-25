@@ -425,14 +425,14 @@ feat: landing page — hero, funcionalidades, preços e CTA
 **Objetivo:** Fluxo guiado para novos usuários que acabaram de se cadastrar, reduzindo o time-to-value.
 
 **Entregas:**
-- [ ] Detectar primeiro acesso (sem workspace criado) e redirecionar para `/onboarding`
-- [ ] Step 1 — "Crie seu workspace" (nome da empresa + slug)
-- [ ] Step 2 — "Convide seu time" (campo de e-mail opcional, com opção "Fazer sozinho por agora")
-- [ ] Step 3 — "Crie seu primeiro lead" (formulário simplificado)
-- [ ] Step 4 — "Adicione ao pipeline" (criar primeiro deal e movê-lo para "Contato Realizado")
-- [ ] Indicador de progresso visual (stepper no topo)
-- [ ] Botão "Pular" em cada etapa após Step 1
-- [ ] Redirecionar para `/dashboard` ao concluir
+- [x] Detectar primeiro acesso (sem workspace criado) e redirecionar para `/onboarding`
+- [x] Step 1 — "Crie seu workspace" (nome da empresa + slug)
+- [x] Step 2 — "Convide seu time" (campo de e-mail opcional, com opção "Fazer sozinho por agora")
+- [x] Step 3 — "Crie seu primeiro lead" (formulário simplificado)
+- [x] Step 4 — "Adicione ao pipeline" (criar primeiro deal e movê-lo para "Contato Realizado")
+- [x] Indicador de progresso visual (stepper no topo)
+- [x] Botão "Pular" em cada etapa após Step 1
+- [x] Redirecionar para `/dashboard` ao concluir
 
 **Commit final:**
 ```
