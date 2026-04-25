@@ -7,7 +7,7 @@ export function CtaFinal() {
       <div className="max-w-3xl mx-auto text-center">
         <div className="relative">
           <div className="absolute inset-0 -z-10 bg-primary/10 blur-3xl rounded-full scale-150" />
-          <h2 className="font-display font-extrabold text-4xl md:text-5xl leading-[1.1] mb-6">
+          <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl leading-[1.1] mb-6">
             Seu próximo cliente
             <br />
             <span className="text-primary">começa aqui.</span>

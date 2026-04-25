@@ -15,7 +15,7 @@ export function Hero() {
           Grátis para começar · Sem cartão de crédito
         </div>
 
-        <h1 className="font-display font-extrabold text-5xl md:text-7xl leading-[1.05] tracking-tight mb-6">
+        <h1 className="font-display font-extrabold text-4xl sm:text-5xl md:text-7xl leading-[1.05] tracking-tight mb-6">
           CRM que acompanha
           <br />
           <span className="text-primary">o ritmo do seu negócio</span>
@@ -44,7 +44,7 @@ export function Hero() {
         </div>
 
         {/* App screenshot mockup */}
-        <div className="relative mt-20 max-w-5xl mx-auto">
+        <div className="relative mt-16 md:mt-20 max-w-5xl mx-auto">
           <div className="relative rounded-xl overflow-hidden border border-white/10 shadow-2xl shadow-black/50">
             {/* Window chrome */}
             <div className="bg-white/5 border-b border-white/10 px-4 py-3 flex items-center gap-2">
@@ -58,28 +58,28 @@ export function Hero() {
               </div>
             </div>
 
-            {/* Mock pipeline UI */}
-            <div className="bg-background p-6 h-72 md:h-96 overflow-hidden">
-              <div className="flex gap-4 h-full">
+            {/* Mock pipeline UI — scrollável em mobile */}
+            <div className="bg-background p-4 md:p-6 h-56 sm:h-72 md:h-96 overflow-x-auto overflow-y-hidden">
+              <div className="flex gap-3 md:gap-4 h-full min-w-[560px]">
                 {[
-                  { label: "Novo Lead", color: "#6366f1", count: 4, value: "R$ 12.400" },
-                  { label: "Proposta Enviada", color: "#CAFF33", count: 2, value: "R$ 38.000" },
-                  { label: "Negociação", color: "#f59e0b", count: 3, value: "R$ 54.500" },
-                  { label: "Fechado Ganho", color: "#22c55e", count: 5, value: "R$ 97.800" },
+                  { label: "Novo Lead", color: "#6366f1", count: 4 },
+                  { label: "Proposta Enviada", color: "#CAFF33", count: 2 },
+                  { label: "Negociação", color: "#f59e0b", count: 3 },
+                  { label: "Fechado Ganho", color: "#22c55e", count: 5 },
                 ].map((col) => (
-                  <div key={col.label} className="flex-1 min-w-0">
+                  <div key={col.label} className="flex-1 min-w-[130px]">
                     <div
-                      className="text-xs font-semibold mb-3 pb-2 border-b"
+                      className="text-xs font-semibold mb-3 pb-2 border-b truncate"
                       style={{ color: col.color, borderColor: `${col.color}30` }}
                     >
                       {col.label}
-                      <span className="ml-2 text-muted-foreground font-normal">({col.count})</span>
+                      <span className="ml-1.5 text-muted-foreground font-normal">({col.count})</span>
                     </div>
                     <div className="space-y-2">
                       {Array.from({ length: Math.min(col.count, 3) }).map((_, i) => (
                         <div
                           key={i}
-                          className="rounded-lg p-3 text-xs"
+                          className="rounded-lg p-2.5 md:p-3 text-xs"
                           style={{
                             background: `${col.color}08`,
                             boxShadow: `inset 3px 0 0 ${col.color}`,

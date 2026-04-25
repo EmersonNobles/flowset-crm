@@ -58,7 +58,7 @@ export function Pricing() {
               key={plan.name}
               className={`relative rounded-2xl p-8 border transition-all ${
                 plan.highlight
-                  ? "bg-primary/10 border-primary/40 shadow-lg shadow-primary/10"
+                  ? "mt-4 md:mt-0 bg-primary/10 border-primary/40 shadow-lg shadow-primary/10"
                   : "bg-white/[0.03] border-white/[0.07]"
               }`}
             >
