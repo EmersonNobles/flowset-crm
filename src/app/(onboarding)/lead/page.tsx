@@ -20,7 +20,7 @@ export default function OnboardingLeadPage() {
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl shadow-sm p-8">
+    <div className="bg-card border border-border rounded-xl shadow-sm p-6 sm:p-8">
       <Stepper current={3} />
 
       <div className="flex items-center gap-3 mb-6">
@@ -34,50 +34,49 @@ export default function OnboardingLeadPage() {
       </div>
 
       <form action={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5 col-span-2">
-            <label htmlFor="name" className="text-sm font-medium text-foreground">
-              Nome <span className="text-destructive">*</span>
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="João Silva"
-              required
-              disabled={isPending}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
-            />
-          </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="name" className="text-sm font-medium text-foreground">
+            Nome <span className="text-destructive">*</span>
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="João Silva"
+            required
+            disabled={isPending}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+          />
+        </div>
 
-          <div className="flex flex-col gap-1.5 col-span-2">
-            <label htmlFor="email" className="text-sm font-medium text-foreground">
-              E-mail <span className="text-destructive">*</span>
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="joao@empresa.com"
-              required
-              disabled={isPending}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
-            />
-          </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="email" className="text-sm font-medium text-foreground">
+            E-mail <span className="text-destructive">*</span>
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="joao@empresa.com"
+            required
+            disabled={isPending}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+          />
+        </div>
 
-          <div className="flex flex-col gap-1.5 col-span-2">
-            <label htmlFor="company" className="text-sm font-medium text-foreground">
-              Empresa <span className="text-muted-foreground text-xs font-normal">(opcional)</span>
-            </label>
-            <input
-              id="company"
-              name="company"
-              type="text"
-              placeholder="Empresa Ltda"
-              disabled={isPending}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
-            />
-          </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="company" className="text-sm font-medium text-foreground">
+            Empresa{" "}
+            <span className="text-muted-foreground text-xs font-normal">(opcional)</span>
+          </label>
+          <input
+            id="company"
+            name="company"
+            type="text"
+            placeholder="Empresa Ltda"
+            disabled={isPending}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+          />
         </div>
 
         {error && (
@@ -89,14 +88,21 @@ export default function OnboardingLeadPage() {
           disabled={isPending}
           className="flex items-center justify-center gap-2 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 mt-1"
         >
-          {isPending ? <Loader2 className="size-4 animate-spin" /> : "Criar lead e continuar →"}
+          {isPending ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Criando...
+            </>
+          ) : (
+            "Criar lead e continuar →"
+          )}
         </button>
 
         <button
           type="button"
           disabled={isPending}
           onClick={() => router.push("/dashboard")}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors text-center disabled:opacity-50"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors text-center disabled:opacity-50 py-1"
         >
           Pular esta etapa
         </button>

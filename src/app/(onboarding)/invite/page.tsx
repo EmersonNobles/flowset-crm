@@ -21,7 +21,7 @@ export default function OnboardingInvitePage() {
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl shadow-sm p-8">
+    <div className="bg-card border border-border rounded-xl shadow-sm p-6 sm:p-8">
       <Stepper current={2} />
 
       <div className="flex items-center gap-3 mb-6">
@@ -30,7 +30,7 @@ export default function OnboardingInvitePage() {
         </div>
         <div>
           <h1 className="text-xl font-display font-bold text-foreground mb-0.5">Convide seu time</h1>
-          <p className="text-sm text-muted-foreground">Opcional — você pode fazer isso depois.</p>
+          <p className="text-sm text-muted-foreground">Opcional — você pode fazer depois.</p>
         </div>
       </div>
 
@@ -48,7 +48,7 @@ export default function OnboardingInvitePage() {
             className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
           />
           <p className="text-xs text-muted-foreground">
-            Ele receberá um convite por e-mail para entrar no seu workspace.
+            Ele receberá um convite por e-mail para entrar no workspace.
           </p>
         </div>
 
@@ -57,15 +57,23 @@ export default function OnboardingInvitePage() {
           disabled={isPending}
           className="flex items-center justify-center gap-2 w-full rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 mt-1"
         >
-          {isPending ? <Loader2 className="size-4 animate-spin" /> : "Enviar convite e continuar →"}
+          {isPending ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Enviando...
+            </>
+          ) : (
+            "Enviar convite e continuar →"
+          )}
         </button>
 
         <button
           type="button"
           disabled={isPending}
           onClick={handleSkip}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors text-center disabled:opacity-50"
+          className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors text-center disabled:opacity-50 py-1"
         >
+          {isPending ? <Loader2 className="size-3 animate-spin" /> : null}
           Fazer sozinho por agora
         </button>
       </form>
