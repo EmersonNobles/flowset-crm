@@ -28,7 +28,10 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
     .eq("workspace_id", workspaceId)
     .order("created_at", { ascending: false })
 
-  if (q) query = query.or(`name.ilike.%${q}%,company.ilike.%${q}%,email.ilike.%${q}%`)
+  if (q) {
+    const safeQ = q.replace(/%/g, "\\%").replace(/_/g, "\\_")
+    query = query.or(`name.ilike.%${safeQ}%,company.ilike.%${safeQ}%,email.ilike.%${safeQ}%`)
+  }
   if (status && status !== "all") query = query.eq("status", status)
   if (owner && owner !== "all") query = query.eq("owner_id", owner)
 
@@ -53,8 +56,14 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
   const isFree = (workspaceRow?.plan ?? "free") === "free"
   const totalLeads = totalLeadCount ?? 0
 
-  const { data: { users } } = await adminClient.auth.admin.listUsers()
-  const userEmailMap = new Map(users.map((u) => [u.id, u.email ?? u.id]))
+  const memberIds = [...new Set((membersData ?? []).map((m) => m.user_id).filter(Boolean) as string[])]
+  const userEmailMap = new Map<string, string>()
+  await Promise.all(
+    memberIds.map(async (id) => {
+      const { data } = await adminClient.auth.admin.getUserById(id)
+      if (data.user) userEmailMap.set(id, data.user.email ?? id)
+    })
+  )
 
   const owners: MemberOption[] = (membersData ?? [])
     .filter((m) => m.user_id)

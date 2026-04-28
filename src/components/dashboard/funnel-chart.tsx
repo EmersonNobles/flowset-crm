@@ -50,6 +50,17 @@ type FunnelChartProps = {
 }
 
 export function FunnelChart({ data }: FunnelChartProps) {
+  const hasData = data.some((d) => d.count > 0)
+
+  if (!hasData) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[260px] text-center gap-2">
+        <p className="text-sm font-medium text-muted-foreground">Nenhum negócio no período</p>
+        <p className="text-xs text-muted-foreground/60">Crie deals no Pipeline para ver o funil.</p>
+      </div>
+    )
+  }
+
   return (
     <ResponsiveContainer width="100%" height={260}>
       <BarChart

@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import { adminClient } from "@/lib/supabase/admin"
 import { sendInviteEmail } from "@/lib/resend/send-invite"
-import { WORKSPACE_COOKIE, getActiveMemberCount, getMyRole } from "@/lib/supabase/workspace"
+import { WORKSPACE_COOKIE, getActiveMemberCount, getMyRole, getUserWorkspaces, getActiveWorkspaceId } from "@/lib/supabase/workspace"
 
 const FREE_MEMBER_LIMIT = 2
 
@@ -61,7 +61,13 @@ export async function createWorkspace(formData: FormData) {
     return { error: `Erro ao configurar permissões: ${memberError.message}` }
   }
 
-  cookies().set(WORKSPACE_COOKIE, workspace.id, { path: "/", maxAge: 60 * 60 * 24 * 365 })
+  cookies().set(WORKSPACE_COOKIE, workspace.id, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  })
   redirect("/dashboard")
 }
 
@@ -81,22 +87,31 @@ export async function switchWorkspace(workspaceId: string) {
 
   if (!data) return { error: "Workspace não encontrado." }
 
-  cookies().set(WORKSPACE_COOKIE, workspaceId, { path: "/", maxAge: 60 * 60 * 24 * 365 })
+  cookies().set(WORKSPACE_COOKIE, workspaceId, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  })
   redirect("/dashboard")
 }
 
 // ── Convidar membro ────────────────────────────────────────────────
 
 export async function inviteMember(formData: FormData) {
-  const workspaceId = formData.get("workspace_id") as string
-  const email       = (formData.get("email") as string)?.trim().toLowerCase()
-  const role        = (formData.get("role") as string) ?? "member"
+  const email = (formData.get("email") as string)?.trim().toLowerCase()
+  const role  = (formData.get("role") as string) ?? "member"
 
-  if (!email || !workspaceId) return { error: "Dados inválidos." }
+  if (!email) return { error: "Dados inválidos." }
   if (!["admin", "member"].includes(role)) return { error: "Papel inválido." }
 
   const user = await getAuthUser()
   if (!user) redirect("/login")
+
+  const workspaces = await getUserWorkspaces()
+  const workspaceId = getActiveWorkspaceId(workspaces)
+  if (!workspaceId) return { error: "Workspace não encontrado." }
 
   const myRole = await getMyRole(workspaceId)
   if (myRole !== "admin") return { error: "Apenas administradores podem convidar membros." }
@@ -177,11 +192,14 @@ export async function inviteMember(formData: FormData) {
 // ── Remover membro ─────────────────────────────────────────────────
 
 export async function removeMember(formData: FormData) {
-  const workspaceId = formData.get("workspace_id") as string
-  const memberId    = formData.get("member_id")    as string
+  const memberId = formData.get("member_id") as string
 
   const user = await getAuthUser()
   if (!user) redirect("/login")
+
+  const workspaces = await getUserWorkspaces()
+  const workspaceId = getActiveWorkspaceId(workspaces)
+  if (!workspaceId) return { error: "Workspace não encontrado." }
 
   const myRole = await getMyRole(workspaceId)
   if (myRole !== "admin") return { error: "Apenas administradores podem remover membros." }
@@ -210,11 +228,14 @@ export async function removeMember(formData: FormData) {
 // ── Revogar convite ────────────────────────────────────────────────
 
 export async function revokeInvite(formData: FormData) {
-  const workspaceId = formData.get("workspace_id") as string
-  const inviteId    = formData.get("invite_id")    as string
+  const inviteId = formData.get("invite_id") as string
 
   const user = await getAuthUser()
   if (!user) redirect("/login")
+
+  const workspaces = await getUserWorkspaces()
+  const workspaceId = getActiveWorkspaceId(workspaces)
+  if (!workspaceId) return { error: "Workspace não encontrado." }
 
   const myRole = await getMyRole(workspaceId)
   if (myRole !== "admin") return { error: "Apenas administradores podem revogar convites." }
@@ -246,6 +267,9 @@ export async function acceptInvite(
   if (error || !invite) return { error: "Convite inválido ou não encontrado." }
   if (invite.used_at)   return { error: "Este convite já foi utilizado." }
   if (new Date(invite.expires_at) < new Date()) return { error: "Este convite expirou." }
+  if (user.email?.toLowerCase() !== invite.invited_email.toLowerCase()) {
+    return { error: "Este convite foi enviado para outro endereço de e-mail." }
+  }
 
   const { data: alreadyMember } = await adminClient
     .from("workspace_members")
@@ -276,6 +300,12 @@ export async function acceptInvite(
     .update({ used_at: new Date().toISOString() })
     .eq("id", invite.id)
 
-  cookies().set(WORKSPACE_COOKIE, invite.workspace_id, { path: "/", maxAge: 60 * 60 * 24 * 365 })
+  cookies().set(WORKSPACE_COOKIE, invite.workspace_id, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  })
   return { ok: true }
 }

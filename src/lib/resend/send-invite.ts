@@ -1,5 +1,14 @@
 import { sendEmail } from "./send-email"
 
+function esc(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
+}
+
 export async function sendInviteEmail({
   to,
   workspaceName,
@@ -17,7 +26,7 @@ export async function sendInviteEmail({
 
   return sendEmail({
     to,
-    subject: `Você foi convidado para ${workspaceName} no FlowSet CRM`,
+    subject: `Você foi convidado para ${esc(workspaceName)} no FlowSet CRM`,
     html: `
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -37,8 +46,8 @@ export async function sendInviteEmail({
           <td style="padding:32px">
             <h1 style="margin:0 0 8px;font-size:22px;color:#18181b;font-weight:700">Você foi convidado!</h1>
             <p style="margin:0 0 24px;font-size:15px;color:#52525b;line-height:1.6">
-              <strong style="color:#18181b">${invitedByEmail}</strong> convidou você para colaborar no workspace
-              <strong style="color:#18181b">${workspaceName}</strong> como <strong style="color:#18181b">${rolePt}</strong>.
+              <strong style="color:#18181b">${esc(invitedByEmail)}</strong> convidou você para colaborar no workspace
+              <strong style="color:#18181b">${esc(workspaceName)}</strong> como <strong style="color:#18181b">${esc(rolePt)}</strong>.
             </p>
             <a href="${acceptUrl}"
                style="display:inline-block;background:#18181b;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:14px;font-weight:600">

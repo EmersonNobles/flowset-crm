@@ -6,6 +6,21 @@ import { createClient } from "@/lib/supabase/server"
 import { adminClient } from "@/lib/supabase/admin"
 import { getUserWorkspaces, getActiveWorkspaceId } from "@/lib/supabase/workspace"
 
+const VALID_STAGES = [
+  "novo_lead",
+  "contato_realizado",
+  "proposta_enviada",
+  "negociacao",
+  "fechado_ganho",
+  "fechado_perdido",
+] as const
+
+type DealStage = (typeof VALID_STAGES)[number]
+
+function assertValidStage(stage: string): stage is DealStage {
+  return (VALID_STAGES as readonly string[]).includes(stage)
+}
+
 async function getAuthContext() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -19,6 +34,8 @@ async function getAuthContext() {
 }
 
 export async function moveDeal(id: string, stage: string) {
+  if (!assertValidStage(stage)) return { error: "Etapa inválida" }
+
   const { workspaceId } = await getAuthContext()
 
   const { error } = await adminClient
@@ -47,7 +64,9 @@ export async function createDeal(formData: FormData) {
     value: Number(formData.get("value")) || 0,
     lead_id: (formData.get("leadId") as string) || null,
     owner_id: user.id,
-    stage: (formData.get("stage") as string) || "novo_lead",
+    stage: assertValidStage(formData.get("stage") as string)
+      ? (formData.get("stage") as DealStage)
+      : "novo_lead",
     due_date: (formData.get("dueDate") as string) || null,
     workspace_id: workspaceId,
   })
@@ -71,7 +90,9 @@ export async function updateDeal(id: string, formData: FormData) {
       value: Number(formData.get("value")) || 0,
       lead_id: (formData.get("leadId") as string) || null,
       due_date: (formData.get("dueDate") as string) || null,
-      stage: formData.get("stage") as string,
+      stage: assertValidStage(formData.get("stage") as string)
+      ? (formData.get("stage") as DealStage)
+      : "novo_lead",
     })
     .eq("id", id)
     .eq("workspace_id", workspaceId)

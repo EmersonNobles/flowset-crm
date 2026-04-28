@@ -16,11 +16,10 @@ type Member = {
 interface Props {
   member: Member
   currentUserId: string
-  workspaceId: string
   isAdmin: boolean
 }
 
-export function MemberRow({ member, currentUserId, workspaceId, isAdmin }: Props) {
+export function MemberRow({ member, currentUserId, isAdmin }: Props) {
   const [isPending, startTransition] = useTransition()
   const isMe = member.user_id === currentUserId
 
@@ -55,7 +54,6 @@ export function MemberRow({ member, currentUserId, workspaceId, isAdmin }: Props
 
       {isAdmin && !isMe && (
         <form action={handleRemove}>
-          <input type="hidden" name="workspace_id" value={workspaceId} />
           <input type="hidden" name="member_id" value={member.id} />
           <button
             type="submit"

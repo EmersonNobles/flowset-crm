@@ -4,7 +4,7 @@ import { useState, useTransition, useRef } from "react"
 import { Loader2, Send } from "lucide-react"
 import { inviteMember } from "@/app/actions/workspace"
 
-export function InviteForm({ workspaceId }: { workspaceId: string }) {
+export function InviteForm() {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -30,8 +30,6 @@ export function InviteForm({ workspaceId }: { workspaceId: string }) {
 
   return (
     <form ref={formRef} action={handleSubmit} className="flex flex-col gap-3">
-      <input type="hidden" name="workspace_id" value={workspaceId} />
-
       <div className="flex gap-2">
         <input
           type="email"

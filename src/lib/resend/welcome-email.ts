@@ -1,5 +1,14 @@
 import { sendEmail } from "./send-email"
 
+function esc(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
+}
+
 export async function sendWelcomeEmail({
   to,
   name,
@@ -29,7 +38,7 @@ export async function sendWelcomeEmail({
         <!-- Body -->
         <tr>
           <td style="padding:32px">
-            <h1 style="margin:0 0 8px;font-size:22px;color:#18181b;font-weight:700">Bem-vindo, ${displayName}!</h1>
+            <h1 style="margin:0 0 8px;font-size:22px;color:#18181b;font-weight:700">Bem-vindo, ${esc(displayName)}!</h1>
             <p style="margin:0 0 24px;font-size:15px;color:#52525b;line-height:1.6">
               Sua conta no FlowSet CRM está ativa. Agora você pode criar seu workspace e começar a gerenciar seus leads e negócios.
             </p>

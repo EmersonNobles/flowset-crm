@@ -5,7 +5,10 @@ import { adminClient } from "@/lib/supabase/admin"
 
 export const dynamic = "force-dynamic"
 
-const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET!
+if (!process.env.STRIPE_WEBHOOK_SECRET) {
+  throw new Error("STRIPE_WEBHOOK_SECRET não configurada")
+}
+const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
 
 type DbStatus = "active" | "canceled" | "past_due" | "trialing"
 
@@ -80,6 +83,19 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   })
 }
 
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  const workspaceId = subscription.metadata?.workspace_id
+  if (!workspaceId) return
+
+  const plan = subscription.status === "active" ? "pro" : "free"
+  await setWorkspacePlan(workspaceId, plan, {
+    stripe_subscription_id: subscription.id,
+    stripe_customer_id: subscription.customer as string,
+    status: toDbStatus(subscription.status),
+    current_period_end: periodEndISO(subscription),
+  })
+}
+
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
   const parent = invoice.parent
   const subscriptionId =
@@ -121,6 +137,10 @@ export async function POST(req: NextRequest) {
     switch (event.type) {
       case "checkout.session.completed":
         await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session)
+        break
+
+      case "customer.subscription.updated":
+        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription)
         break
 
       case "customer.subscription.deleted":

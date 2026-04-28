@@ -22,8 +22,14 @@ export default async function PipelinePage() {
       .order("name"),
   ])
 
-  const { data: { users } } = await adminClient.auth.admin.listUsers()
-  const userEmailMap = new Map(users.map((u) => [u.id, u.email ?? u.id]))
+  const ownerIds = [...new Set((dealsData ?? []).map((d) => d.owner_id).filter(Boolean) as string[])]
+  const userEmailMap = new Map<string, string>()
+  await Promise.all(
+    ownerIds.map(async (id) => {
+      const { data } = await adminClient.auth.admin.getUserById(id)
+      if (data.user) userEmailMap.set(id, data.user.email ?? id)
+    })
+  )
 
   const leadInfoMap = new Map(
     (leadsData ?? []).map((l) => [l.id, { name: l.name, company: l.company ?? "" }])

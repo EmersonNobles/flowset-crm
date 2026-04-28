@@ -52,7 +52,35 @@ export function LeadsTable({ leads }: LeadsTableProps) {
 
   return (
     <div className="rounded-xl border border-border bg-background overflow-hidden">
-      <div className="overflow-x-auto">
+
+      {/* ── Mobile: card list (hidden sm+) ── */}
+      <div className="sm:hidden divide-y divide-border">
+        {pagedLeads.map((lead) => (
+          <Link
+            key={lead.id}
+            href={`/leads/${lead.id}`}
+            className="flex items-start gap-3 px-4 py-3.5 hover:bg-muted/30 transition-colors"
+          >
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold mt-0.5">
+              {getInitials(lead.name)}
+            </span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-medium text-foreground truncate">{lead.name}</span>
+                <LeadStatusBadge status={lead.status} />
+              </div>
+              {lead.company && (
+                <p className="text-xs text-muted-foreground truncate mt-0.5">{lead.company}</p>
+              )}
+              <p className="text-xs text-muted-foreground truncate mt-0.5">{lead.email ?? "—"}</p>
+              <p className="text-xs text-muted-foreground mt-1">{formatDate(lead.created_at)}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* ── Desktop: tabela (hidden em mobile) ── */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/40">

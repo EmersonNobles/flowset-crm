@@ -35,7 +35,7 @@ export function KanbanColumn({ column, deals, onCardClick, onAddDeal }: KanbanCo
   return (
     <div
       className={cn(
-        "flex flex-col w-[272px] shrink-0 rounded-xl border bg-card/50 overflow-hidden",
+        "flex flex-col w-[240px] sm:w-[272px] shrink-0 rounded-xl border bg-card/50 overflow-hidden",
         "transition-all duration-150"
       )}
       style={{

@@ -60,7 +60,13 @@ export async function createWorkspaceOnboarding(formData: FormData) {
 
   if (memberError) return { error: `Erro ao configurar permissões: ${memberError.message}` }
 
-  cookies().set(WORKSPACE_COOKIE, workspace.id, { path: "/", maxAge: 60 * 60 * 24 * 365 })
+  cookies().set(WORKSPACE_COOKIE, workspace.id, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  })
   redirect("/onboarding/invite")
 }
 
