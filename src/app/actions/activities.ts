@@ -7,6 +7,8 @@ import { adminClient } from "@/lib/supabase/admin"
 import { getUserWorkspaces, getActiveWorkspaceId } from "@/lib/supabase/workspace"
 import type { ActivityType } from "@/types/leads"
 
+const VALID_ACTIVITY_TYPES: ActivityType[] = ["ligacao", "email", "reuniao", "nota"]
+
 async function getAuthContext() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -25,7 +27,8 @@ export async function createActivity(leadId: string, formData: FormData) {
   const type = formData.get("type") as ActivityType
   const description = (formData.get("description") as string)?.trim()
 
-  if (!type || !description) return { error: "Tipo e descrição são obrigatórios" }
+  if (!type || !VALID_ACTIVITY_TYPES.includes(type)) return { error: "Tipo de atividade inválido" }
+  if (!description) return { error: "Descrição é obrigatória" }
 
   const { error } = await adminClient.from("activities").insert({
     lead_id: leadId,
