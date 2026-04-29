@@ -448,20 +448,25 @@ feat: onboarding — fluxo guiado de 4 etapas para novos usuários
 **Objetivo:** Aplicação em produção, estável, com todas as variáveis de ambiente configuradas e CI básico.
 
 **Entregas:**
-- [ ] Criar projeto no Vercel e conectar ao repositório GitHub
-- [ ] Configurar todas as variáveis de ambiente no Vercel (Supabase, Stripe, Resend)
-- [ ] Criar projeto Supabase de produção separado do desenvolvimento
-- [ ] Aplicar todas as migrations no banco de produção
-- [ ] Configurar webhook do Stripe apontando para a URL de produção
-- [ ] Habilitar confirmação de e-mail no Supabase Auth (produção)
-- [ ] Teste end-to-end manual: cadastro → criar workspace → criar lead → criar deal → pipeline → upgrade → logout
-- [ ] Configurar domínio customizado no Vercel (se disponível)
-- [ ] Verificar `npm run build` sem erros ou warnings críticos
-- [ ] Criar `main` branch como branch de produção protegida
+- [x] Criar projeto no Vercel e conectar ao repositório GitHub
+- [x] Configurar todas as variáveis de ambiente no Vercel (Supabase, Stripe, Resend)
+- [x] Aplicar todas as migrations no banco de produção (9 migrations via `npx supabase db push`)
+- [x] Configurar webhook do Stripe apontando para a URL de produção (`crm.flowset.com.br/api/webhooks/stripe`)
+- [x] Habilitar confirmação de e-mail no Supabase Auth (produção)
+- [x] Configurar SMTP customizado via Resend (`contato@flowset.com.br`)
+- [x] Verificar `npm run build` sem erros ou warnings críticos
+- [x] Configurar domínio customizado no Vercel (`crm.flowset.com.br`)
+- [x] Switch Stripe test → live (`pk_live`, `sk_live`, webhook live, price live)
+- [x] Corrigir redirects do onboarding (rotas do grupo `(onboarding)` sem prefixo na URL)
+- [x] Criar página `/nova-senha` para redefinição de senha fora da área autenticada
+- [x] Corrigir parse de valores BRL nos campos de deal (`10.000,00` → `10000`)
+- [x] Pipeline atualiza automaticamente após criar deal via `router.refresh()`
+- [x] Validação de enum em `stage` e `activityType` nas Server Actions
+- [x] Teste end-to-end: cadastro → e-mail confirmado → workspace → lead → deal → pipeline → upgrade Pro → logout
 
 **Commit final:**
 ```
-chore: configuração de produção — Vercel, Supabase prod, Stripe webhook e domínio
+chore: M17 concluído — FlowSet CRM em produção em crm.flowset.com.br
 ```
 
 ---
