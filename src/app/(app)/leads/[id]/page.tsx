@@ -15,7 +15,7 @@ interface LeadDetailPageProps {
 export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
   const workspaces = await getUserWorkspaces()
   const workspaceId = getActiveWorkspaceId(workspaces)
-  if (!workspaceId) redirect("/onboarding/workspace")
+  if (!workspaceId) redirect("/workspace")
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

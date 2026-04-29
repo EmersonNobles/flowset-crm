@@ -7,7 +7,7 @@ import { PIPELINE_COLUMNS, type Deal, type DealStage } from "@/lib/mock/deals"
 export default async function PipelinePage() {
   const workspaces = await getUserWorkspaces()
   const workspaceId = getActiveWorkspaceId(workspaces)
-  if (!workspaceId) redirect("/onboarding/workspace")
+  if (!workspaceId) redirect("/workspace")
 
   const [{ data: dealsData }, { data: leadsData }] = await Promise.all([
     adminClient

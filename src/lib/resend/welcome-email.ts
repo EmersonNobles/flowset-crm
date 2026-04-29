@@ -63,7 +63,7 @@ export async function sendWelcomeEmail({
                 </td>
               </tr>
             </table>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/onboarding/workspace"
+            <a href="${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/workspace"
                style="display:inline-block;background:#18181b;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:14px;font-weight:600">
               Criar meu workspace
             </a>

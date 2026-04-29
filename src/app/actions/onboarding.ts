@@ -19,7 +19,7 @@ async function getOnboardingContext() {
 
   const workspaces = await getUserWorkspaces()
   const workspaceId = getActiveWorkspaceId(workspaces)
-  if (!workspaceId) redirect("/onboarding/workspace")
+  if (!workspaceId) redirect("/workspace")
 
   return { user, workspaceId }
 }
@@ -67,7 +67,7 @@ export async function createWorkspaceOnboarding(formData: FormData) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
   })
-  redirect("/onboarding/invite")
+  redirect("/invite")
 }
 
 // Step 2 — convida membro (opcional) e vai para o próximo passo
@@ -85,7 +85,7 @@ export async function onboardingInvite(formData: FormData) {
     })
   }
 
-  redirect("/onboarding/lead")
+  redirect("/lead")
 }
 
 // Step 3 — cria o primeiro lead e vai para o próximo passo
@@ -112,7 +112,7 @@ export async function onboardingCreateLead(formData: FormData) {
 
   if (error || !lead) return { error: error?.message ?? "Erro ao criar lead" }
 
-  redirect(`/onboarding/deal?leadId=${lead.id}&leadName=${encodeURIComponent(name)}`)
+  redirect(`/deal?leadId=${lead.id}&leadName=${encodeURIComponent(name)}`)
 }
 
 // Step 4 — cria o primeiro deal e finaliza o onboarding

@@ -38,7 +38,7 @@ export default async function DashboardPage({
 }) {
   const workspaces = await getUserWorkspaces()
   const workspaceId = getActiveWorkspaceId(workspaces)
-  if (!workspaceId) redirect("/onboarding/workspace")
+  if (!workspaceId) redirect("/workspace")
 
   const period = searchParams.period ?? "month"
   const since = periodStart(period)

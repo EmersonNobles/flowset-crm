@@ -28,7 +28,7 @@ async function getAuthContext() {
 
   const workspaces = await getUserWorkspaces()
   const workspaceId = getActiveWorkspaceId(workspaces)
-  if (!workspaceId) redirect("/onboarding/workspace")
+  if (!workspaceId) redirect("/workspace")
 
   return { user, workspaceId }
 }
