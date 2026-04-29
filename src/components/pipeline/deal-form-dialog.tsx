@@ -13,7 +13,7 @@ import type { AvailableLead } from "@/components/crm/kanban-board"
 
 const dealSchema = z.object({
   title: z.string().min(1, "Título é obrigatório"),
-  value: z.number().min(1, "Valor deve ser maior que zero"),
+  value: z.string().min(1, "Valor é obrigatório"),
   leadId: z.string().optional(),
   dueDate: z.string().optional(),
   stage: z.enum([
@@ -123,11 +123,11 @@ export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead",
                   Valor (R$) <span className="text-destructive">*</span>
                 </label>
                 <input
-                  {...register("value", { valueAsNumber: true })}
-                  type="number"
-                  min="1"
+                  {...register("value")}
+                  type="text"
+                  inputMode="decimal"
                   className={fieldClass(!!errors.value)}
-                  placeholder="0"
+                  placeholder="10.000,00"
                 />
                 {errors.value && <p className="text-xs text-destructive">{errors.value.message}</p>}
               </div>

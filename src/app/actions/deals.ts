@@ -1,6 +1,12 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+
+function parseBRL(raw: FormDataEntryValue | null): number {
+  if (!raw) return 0
+  const n = parseFloat(String(raw).replace(/\./g, "").replace(",", "."))
+  return isNaN(n) ? 0 : n
+}
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { adminClient } from "@/lib/supabase/admin"
@@ -61,7 +67,7 @@ export async function createDeal(formData: FormData) {
 
   const { error } = await adminClient.from("deals").insert({
     title,
-    value: Number(formData.get("value")) || 0,
+    value: parseBRL(formData.get("value")),
     lead_id: (formData.get("leadId") as string) || null,
     owner_id: user.id,
     stage: assertValidStage(formData.get("stage") as string)
@@ -87,7 +93,7 @@ export async function updateDeal(id: string, formData: FormData) {
     .from("deals")
     .update({
       title,
-      value: Number(formData.get("value")) || 0,
+      value: parseBRL(formData.get("value")),
       lead_id: (formData.get("leadId") as string) || null,
       due_date: (formData.get("dueDate") as string) || null,
       stage: assertValidStage(formData.get("stage") as string)

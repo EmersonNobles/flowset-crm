@@ -122,9 +122,14 @@ export async function onboardingCreateDeal(formData: FormData) {
   const title = (formData.get("title") as string)?.trim()
   if (!title) return { error: "Título é obrigatório" }
 
+  const rawValue = formData.get("value")
+  const value = rawValue
+    ? parseFloat(String(rawValue).replace(/\./g, "").replace(",", ".")) || 0
+    : 0
+
   const { error } = await adminClient.from("deals").insert({
     title,
-    value: Number(formData.get("value")) || 0,
+    value,
     lead_id: (formData.get("leadId") as string) || null,
     owner_id: user.id,
     stage: "contato_realizado",

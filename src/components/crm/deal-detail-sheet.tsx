@@ -211,11 +211,16 @@ export function DealDetailSheet({
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-muted-foreground">Valor (R$)</label>
                       <input
-                        type="number"
-                        min="0"
+                        type="text"
+                        inputMode="decimal"
                         value={form.value}
-                        onChange={(e) => setForm((f) => ({ ...f, value: Number(e.target.value) }))}
+                        onChange={(e) => {
+                          const raw = e.target.value
+                          const parsed = parseFloat(raw.replace(/\./g, "").replace(",", "."))
+                          setForm((f) => ({ ...f, value: isNaN(parsed) ? 0 : parsed }))
+                        }}
                         className={fieldClass()}
+                        placeholder="10.000,00"
                       />
                     </div>
                     <div className="space-y-1.5">
