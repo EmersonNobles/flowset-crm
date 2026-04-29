@@ -45,9 +45,10 @@ interface DealFormDialogProps {
   onOpenChange: (open: boolean) => void
   initialStage?: DealStage
   availableLeads: AvailableLead[]
+  onSuccess?: () => void
 }
 
-export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead", availableLeads }: DealFormDialogProps) {
+export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead", availableLeads, onSuccess }: DealFormDialogProps) {
   const [serverError, setServerError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -80,7 +81,10 @@ export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead",
     startTransition(async () => {
       const result = await createDeal(formData)
       if (result?.error) setServerError(result.error)
-      else onOpenChange(false)
+      else {
+        onOpenChange(false)
+        onSuccess?.()
+      }
     })
   }
 

@@ -1,6 +1,7 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Plus } from "lucide-react"
 import {
   DndContext,
@@ -56,11 +57,17 @@ interface KanbanBoardProps {
 }
 
 export function KanbanBoard({ initialDeals, availableLeads }: KanbanBoardProps) {
+  const router = useRouter()
   const [columns, setColumns] = useState<ColumnMap>(() => buildColumnMap(initialDeals))
   const [activeId, setActiveId] = useState<string | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [createStage, setCreateStage] = useState<DealStage>("novo_lead")
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null)
+
+  // Sincroniza estado local quando o servidor re-renderiza com novos deals
+  useEffect(() => {
+    setColumns(buildColumnMap(initialDeals))
+  }, [initialDeals])
 
   // Always-fresh ref to avoid stale closure in drag handlers
   const columnsRef = useRef(columns)
@@ -234,6 +241,7 @@ export function KanbanBoard({ initialDeals, availableLeads }: KanbanBoardProps) 
         onOpenChange={setCreateOpen}
         initialStage={createStage}
         availableLeads={availableLeads}
+        onSuccess={() => router.refresh()}
       />
 
       <DealDetailSheet
