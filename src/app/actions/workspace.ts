@@ -208,6 +208,7 @@ export async function removeMember(formData: FormData) {
     .from("workspace_members")
     .select("user_id, role")
     .eq("id", memberId)
+    .eq("workspace_id", workspaceId)
     .single()
 
   if (!target) return { error: "Membro não encontrado." }
@@ -280,6 +281,20 @@ export async function acceptInvite(
     .maybeSingle()
 
   if (!alreadyMember) {
+    // Valida limite de membros do plano Free antes de inserir
+    const { data: ws } = await adminClient
+      .from("workspaces")
+      .select("plan")
+      .eq("id", invite.workspace_id)
+      .single()
+
+    if (ws?.plan === "free") {
+      const count = await getActiveMemberCount(invite.workspace_id)
+      if (count >= FREE_MEMBER_LIMIT) {
+        return { error: "O workspace atingiu o limite de membros do plano Free." }
+      }
+    }
+
     const { error: insertError } = await adminClient
       .from("workspace_members")
       .insert({
@@ -295,10 +310,17 @@ export async function acceptInvite(
     }
   }
 
-  await adminClient
+  // Marca convite como usado de forma atômica (previne race condition)
+  const { data: markedRows } = await adminClient
     .from("workspace_invites")
     .update({ used_at: new Date().toISOString() })
     .eq("id", invite.id)
+    .is("used_at", null)
+    .select("id")
+
+  if (!markedRows || markedRows.length === 0) {
+    return { error: "Este convite já foi utilizado." }
+  }
 
   cookies().set(WORKSPACE_COOKIE, invite.workspace_id, {
     path: "/",

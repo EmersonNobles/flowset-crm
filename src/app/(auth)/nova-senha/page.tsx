@@ -41,6 +41,14 @@ export default function NovaSenhaPage() {
     setError(null)
 
     const supabase = createClient()
+
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      setError("Link de recuperação inválido ou expirado. Solicite um novo link.")
+      setLoading(false)
+      return
+    }
+
     const { error: updateError } = await supabase.auth.updateUser({
       password: data.password,
     })

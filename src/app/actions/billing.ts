@@ -6,7 +6,8 @@ import { adminClient } from "@/lib/supabase/admin"
 import { stripe, STRIPE_PRICE_ID } from "@/lib/stripe/client"
 import { getUserWorkspaces, getActiveWorkspaceId } from "@/lib/supabase/workspace"
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+if (!process.env.NEXT_PUBLIC_APP_URL) throw new Error("NEXT_PUBLIC_APP_URL não configurada")
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL
 
 async function getAuthContext() {
   const supabase = await createClient()
@@ -30,10 +31,10 @@ async function getOrCreateCustomer(workspaceId: string, email: string): Promise<
 
   if (sub?.stripe_customer_id) return sub.stripe_customer_id
 
-  const customer = await stripe.customers.create({
-    email,
-    metadata: { workspace_id: workspaceId },
-  })
+  const customer = await stripe.customers.create(
+    { email, metadata: { workspace_id: workspaceId } },
+    { idempotencyKey: `customer-${workspaceId}` }
+  )
 
   await adminClient
     .from("subscriptions")
@@ -48,7 +49,8 @@ async function getOrCreateCustomer(workspaceId: string, email: string): Promise<
 export async function createCheckoutSession() {
   const { user, workspaceId } = await getAuthContext()
 
-  const customerId = await getOrCreateCustomer(workspaceId, user.email!)
+  if (!user.email) throw new Error("Usuário sem e-mail não pode assinar.")
+  const customerId = await getOrCreateCustomer(workspaceId, user.email)
 
   const session = await stripe.checkout.sessions.create({
     customer: customerId,

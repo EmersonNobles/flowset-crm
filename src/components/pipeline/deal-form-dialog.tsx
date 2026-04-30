@@ -30,13 +30,15 @@ type DealFormData = z.infer<typeof dealSchema>
 
 const fieldClass = (hasError: boolean) =>
   cn(
-    "h-8 w-full rounded-lg border bg-background px-2.5 text-sm text-foreground",
+    "h-9 w-full rounded-[10px] border bg-background px-3 text-sm text-foreground",
     "placeholder:text-muted-foreground outline-none focus:ring-3 focus:ring-ring/50 transition-all",
-    hasError ? "border-destructive focus:border-destructive" : "border-border focus:border-ring"
+    hasError
+      ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+      : "border-border focus:border-ring"
   )
 
 const selectClass = cn(
-  "h-8 w-full rounded-lg border border-border bg-background px-2.5 text-sm text-foreground",
+  "h-9 w-full rounded-[10px] border border-border bg-background px-3 text-sm text-foreground",
   "outline-none focus:border-ring focus:ring-3 focus:ring-ring/50 transition-all cursor-pointer"
 )
 
@@ -92,16 +94,20 @@ export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead",
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm"
         onClick={() => onOpenChange(false)}
       />
-      <div className="relative z-50 w-full max-w-md mx-4 bg-card rounded-xl shadow-2xl border border-border/60 max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border/60 shrink-0">
-          <h2 className="font-display text-base font-semibold text-foreground">Novo Negócio</h2>
+
+      {/* Modal */}
+      <div className="relative z-50 w-full max-w-md mx-4 bg-brand-card-dark rounded-[14px] shadow-2xl border border-white/8 max-h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/8 shrink-0">
+          <h2 className="font-display text-base tracking-tight text-foreground">Novo Negócio</h2>
           <button
             onClick={() => onOpenChange(false)}
-            className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-white/10 hover:text-foreground transition-colors"
+            className="flex size-7 items-center justify-center rounded-[8px] text-muted-foreground hover:bg-white/8 hover:text-foreground transition-colors"
           >
             <X className="size-4" />
           </button>
@@ -109,6 +115,7 @@ export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead",
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+            {/* Título */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground">
                 Título <span className="text-destructive">*</span>
@@ -121,6 +128,7 @@ export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead",
               {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
             </div>
 
+            {/* Valor + Etapa */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-foreground">
@@ -149,6 +157,7 @@ export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead",
               </div>
             </div>
 
+            {/* Lead */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground">Lead vinculado</label>
               <select {...register("leadId")} className={selectClass}>
@@ -161,6 +170,7 @@ export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead",
               </select>
             </div>
 
+            {/* Prazo */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground">Prazo</label>
               <input
@@ -171,13 +181,14 @@ export function DealFormDialog({ open, onOpenChange, initialStage = "novo_lead",
             </div>
 
             {serverError && (
-              <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
+              <p className="text-sm text-destructive bg-destructive/10 rounded-[10px] px-3 py-2">
                 {serverError}
               </p>
             )}
           </div>
 
-          <div className="flex justify-end gap-2 px-6 py-4 border-t border-border/60 shrink-0">
+          {/* Footer */}
+          <div className="flex justify-end gap-2 px-6 py-4 border-t border-white/8 shrink-0">
             <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={isPending}>
               Cancelar
             </Button>

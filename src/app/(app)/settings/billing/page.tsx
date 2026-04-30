@@ -16,7 +16,13 @@ async function getBillingData() {
     .eq("workspace_id", workspaceId)
     .maybeSingle()
 
-  return { sub, workspaceId }
+  return {
+    plan: sub?.plan,
+    status: sub?.status,
+    current_period_end: sub?.current_period_end,
+    hasPortal: !!sub?.stripe_customer_id,
+    workspaceId,
+  }
 }
 
 const PRO_FEATURES = [
@@ -40,12 +46,12 @@ export default async function BillingPage({
   searchParams: { success?: string; canceled?: string }
 }) {
   const data = await getBillingData()
-  const plan = data?.sub?.plan ?? "free"
+  const plan = data?.plan ?? "free"
   const isPro = plan === "pro"
-  const hasPortal = !!data?.sub?.stripe_customer_id
+  const hasPortal = !!data?.hasPortal
 
-  const periodEnd = data?.sub?.current_period_end
-    ? new Date(data.sub.current_period_end).toLocaleDateString("pt-BR", {
+  const periodEnd = data?.current_period_end
+    ? new Date(data.current_period_end).toLocaleDateString("pt-BR", {
         day: "2-digit",
         month: "long",
         year: "numeric",
@@ -66,14 +72,14 @@ export default async function BillingPage({
       </div>
 
       {searchParams.success === "1" && (
-        <div className="mb-6 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-          <CheckCircle2 className="size-4 shrink-0" />
+        <div className="mb-6 flex items-center gap-2 rounded-[14px] border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-brand-creme">
+          <CheckCircle2 className="size-4 text-primary shrink-0" />
           Assinatura ativada com sucesso! Bem-vindo ao Pro.
         </div>
       )}
 
       {searchParams.canceled === "1" && (
-        <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <div className="mb-6 rounded-[14px] border border-white/10 bg-white/5 px-4 py-3 text-sm text-brand-areia">
           O checkout foi cancelado. Seu plano não foi alterado.
         </div>
       )}
@@ -118,7 +124,7 @@ export default async function BillingPage({
           <ul className="space-y-2">
             {(isPro ? PRO_FEATURES : FREE_FEATURES).map((f) => (
               <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle2 className="size-4 text-green-500 shrink-0" />
+                <CheckCircle2 className="size-4 text-primary shrink-0" />
                 {f}
               </li>
             ))}
@@ -158,7 +164,7 @@ export default async function BillingPage({
           <form action={createPortalSession}>
             <button
               type="submit"
-              className="rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors"
+              className="rounded-[10px] border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-white/5 transition-colors"
             >
               Abrir portal de faturamento
             </button>

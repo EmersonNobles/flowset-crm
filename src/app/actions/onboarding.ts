@@ -4,7 +4,8 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { adminClient } from "@/lib/supabase/admin"
-import { WORKSPACE_COOKIE, getActiveWorkspaceId, getUserWorkspaces } from "@/lib/supabase/workspace"
+import { WORKSPACE_COOKIE, getActiveWorkspaceId, getUserWorkspaces, getActiveMemberCount } from "@/lib/supabase/workspace"
+import { sendInviteEmail } from "@/lib/resend/send-invite"
 
 async function getAuthUser() {
   const supabase = await createClient()
@@ -70,23 +71,67 @@ export async function createWorkspaceOnboarding(formData: FormData) {
   redirect("/invite")
 }
 
+const FREE_MEMBER_LIMIT = 2
+
 // Step 2 — convida membro (opcional) e vai para o próximo passo
 export async function onboardingInvite(formData: FormData) {
-  const { workspaceId } = await getOnboardingContext()
+  const { user, workspaceId } = await getOnboardingContext()
   const email = (formData.get("email") as string)?.trim().toLowerCase()
 
   if (email) {
-    const token = crypto.randomUUID()
-    await adminClient.from("workspace_invites").insert({
-      workspace_id: workspaceId,
-      invited_email: email,
-      role: "member",
-      token,
-    })
+    // Valida formato básico de email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return { error: "E-mail inválido." }
+    }
+
+    const { data: workspace } = await adminClient
+      .from("workspaces")
+      .select("name, plan")
+      .eq("id", workspaceId)
+      .single()
+
+    if (workspace?.plan === "free") {
+      const count = await getActiveMemberCount(workspaceId)
+      if (count >= FREE_MEMBER_LIMIT) {
+        return { error: `O plano Free suporta até ${FREE_MEMBER_LIMIT} membros.` }
+      }
+    }
+
+    const { data: pendingInvite } = await adminClient
+      .from("workspace_invites")
+      .select("id")
+      .eq("workspace_id", workspaceId)
+      .eq("invited_email", email)
+      .is("used_at", null)
+      .gt("expires_at", new Date().toISOString())
+      .maybeSingle()
+
+    if (!pendingInvite) {
+      const token = crypto.randomUUID()
+      const { error: inviteError } = await adminClient
+        .from("workspace_invites")
+        .insert({ workspace_id: workspaceId, invited_email: email, role: "member", token })
+
+      if (inviteError) {
+        console.error("[onboardingInvite]", inviteError)
+        return { error: "Erro ao criar convite. Tente novamente." }
+      }
+
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+      await sendInviteEmail({
+        to: email,
+        workspaceName: workspace?.name ?? "seu workspace",
+        invitedByEmail: user.email ?? "um administrador",
+        acceptUrl: `${appUrl}/invite/${token}`,
+        role: "member",
+      })
+    }
   }
 
   redirect("/lead")
 }
+
+const FREE_LEAD_LIMIT = 50
 
 // Step 3 — cria o primeiro lead e vai para o próximo passo
 export async function onboardingCreateLead(formData: FormData) {
@@ -96,6 +141,23 @@ export async function onboardingCreateLead(formData: FormData) {
   const email = (formData.get("email") as string)?.trim()
   if (!name) return { error: "Nome é obrigatório" }
   if (!email) return { error: "E-mail é obrigatório" }
+
+  const { data: workspace } = await adminClient
+    .from("workspaces")
+    .select("plan")
+    .eq("id", workspaceId)
+    .single()
+
+  if ((workspace?.plan ?? "free") === "free") {
+    const { count } = await adminClient
+      .from("leads")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId)
+
+    if ((count ?? 0) >= FREE_LEAD_LIMIT) {
+      return { error: `O plano Free suporta até ${FREE_LEAD_LIMIT} leads.`, limitReached: true }
+    }
+  }
 
   const { data: lead, error } = await adminClient
     .from("leads")

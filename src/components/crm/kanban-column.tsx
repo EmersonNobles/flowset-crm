@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { STAGE_COLORS, type Deal, type ColumnConfig } from "@/lib/mock/deals"
 import { DealCard } from "./deal-card"
 
-const CHARTREUSE = "#CAFF33"
+const VERDE_NEON = "#4AE68A"
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -35,33 +35,33 @@ export function KanbanColumn({ column, deals, onCardClick, onAddDeal }: KanbanCo
   return (
     <div
       className={cn(
-        "flex flex-col w-[240px] sm:w-[272px] shrink-0 rounded-xl border bg-card/50 overflow-hidden",
+        "flex flex-col w-[240px] sm:w-[272px] shrink-0 rounded-[14px] border bg-brand-card-dark overflow-hidden",
         "transition-all duration-150"
       )}
       style={{
-        borderColor: isOver ? CHARTREUSE : "rgb(255 255 255 / 0.08)",
-        boxShadow: isOver ? `0 0 0 1px ${CHARTREUSE}44` : undefined,
+        borderColor: isOver ? VERDE_NEON : "rgba(245,240,232,0.08)",
+        boxShadow: isOver ? `0 0 0 1px ${VERDE_NEON}44` : undefined,
       }}
     >
       {/* Column header */}
       <div
         className="flex items-center gap-2 px-3 py-2.5 border-b"
         style={{
-          borderBottomColor: "rgb(255 255 255 / 0.07)",
+          borderBottomColor: "rgba(245,240,232,0.07)",
           borderTopWidth: 2,
           borderTopStyle: "solid",
           borderTopColor: stageHex,
         }}
       >
         <span
-          className="text-xs font-display font-semibold flex-1 truncate"
+          className="text-xs font-display flex-1 truncate"
           style={{ color: stageHex }}
         >
           {column.label}
         </span>
 
         <span
-          className="flex items-center justify-center rounded text-[10px] font-bold px-1.5 min-w-[20px] h-5 tabular-nums"
+          className="flex items-center justify-center rounded-full text-[10px] font-bold px-1.5 min-w-[20px] h-5 tabular-nums"
           style={{
             backgroundColor: stageHex + "18",
             color: stageHex,
@@ -70,13 +70,13 @@ export function KanbanColumn({ column, deals, onCardClick, onAddDeal }: KanbanCo
           {deals.length}
         </span>
 
-        <span className="text-[11px] font-mono text-muted-foreground tabular-nums">
+        <span className="text-[11px] font-mono text-brand-areia tabular-nums">
           {formatCurrency(totalValue)}
         </span>
 
         <button
           onClick={() => onAddDeal(column.id)}
-          className="flex size-5 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground hover:bg-white/10 shrink-0"
+          className="flex size-5 items-center justify-center rounded text-brand-areia transition-colors hover:text-brand-creme hover:bg-white/10 shrink-0"
           title={`Novo deal em ${column.label}`}
         >
           <Plus className="size-3.5" />
@@ -95,8 +95,8 @@ export function KanbanColumn({ column, deals, onCardClick, onAddDeal }: KanbanCo
         </SortableContext>
 
         {deals.length === 0 && (
-          <div className="flex items-center justify-center h-16 rounded-lg border border-dashed border-white/10">
-            <p className="text-[11px] text-muted-foreground/40">Arraste um deal aqui</p>
+          <div className="flex items-center justify-center h-16 rounded-[10px] border border-dashed border-white/8">
+            <p className="text-[11px] text-brand-cinza-claro/40">Arraste um deal aqui</p>
           </div>
         )}
       </div>
