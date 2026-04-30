@@ -16,7 +16,13 @@ async function getBillingData() {
     .eq("workspace_id", workspaceId)
     .maybeSingle()
 
-  return { sub, workspaceId }
+  return {
+    plan: sub?.plan,
+    status: sub?.status,
+    current_period_end: sub?.current_period_end,
+    hasPortal: !!sub?.stripe_customer_id,
+    workspaceId,
+  }
 }
 
 const PRO_FEATURES = [
@@ -40,12 +46,12 @@ export default async function BillingPage({
   searchParams: { success?: string; canceled?: string }
 }) {
   const data = await getBillingData()
-  const plan = data?.sub?.plan ?? "free"
+  const plan = data?.plan ?? "free"
   const isPro = plan === "pro"
-  const hasPortal = !!data?.sub?.stripe_customer_id
+  const hasPortal = !!data?.hasPortal
 
-  const periodEnd = data?.sub?.current_period_end
-    ? new Date(data.sub.current_period_end).toLocaleDateString("pt-BR", {
+  const periodEnd = data?.current_period_end
+    ? new Date(data.current_period_end).toLocaleDateString("pt-BR", {
         day: "2-digit",
         month: "long",
         year: "numeric",

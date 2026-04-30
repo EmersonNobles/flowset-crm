@@ -32,19 +32,29 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  const authPaths = ["/login", "/cadastro", "/recuperar-senha"]
-  const appPaths = ["/dashboard", "/leads", "/pipeline", "/settings", "/onboarding"]
+  // Rotas públicas — qualquer outra rota requer autenticação
+  const PUBLIC_PATHS = [
+    "/",
+    "/login",
+    "/cadastro",
+    "/recuperar-senha",
+    "/nova-senha",
+  ]
+  const PUBLIC_PREFIXES = ["/invite/", "/api/", "/auth/"]
 
-  const isAuthPath = authPaths.includes(pathname)
-  const isAppPath = appPaths.some((p) => pathname.startsWith(p))
+  const isPublic =
+    PUBLIC_PATHS.includes(pathname) ||
+    PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))
+
+  const isAuthOnlyPath = ["/login", "/cadastro", "/recuperar-senha"].includes(pathname)
 
   // Usuário logado na raiz ou em páginas de auth → redireciona para dashboard
-  if (user && (pathname === "/" || isAuthPath)) {
+  if (user && (pathname === "/" || isAuthOnlyPath)) {
     return NextResponse.redirect(new URL("/dashboard", request.url))
   }
 
-  // Usuário não logado tentando acessar área protegida → redireciona para login
-  if (!user && isAppPath) {
+  // Usuário não logado tentando acessar rota protegida → redireciona para login
+  if (!user && !isPublic) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
 
