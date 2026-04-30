@@ -88,6 +88,8 @@ export async function onboardingInvite(formData: FormData) {
   redirect("/lead")
 }
 
+const FREE_LEAD_LIMIT = 50
+
 // Step 3 — cria o primeiro lead e vai para o próximo passo
 export async function onboardingCreateLead(formData: FormData) {
   const { user, workspaceId } = await getOnboardingContext()
@@ -96,6 +98,23 @@ export async function onboardingCreateLead(formData: FormData) {
   const email = (formData.get("email") as string)?.trim()
   if (!name) return { error: "Nome é obrigatório" }
   if (!email) return { error: "E-mail é obrigatório" }
+
+  const { data: workspace } = await adminClient
+    .from("workspaces")
+    .select("plan")
+    .eq("id", workspaceId)
+    .single()
+
+  if ((workspace?.plan ?? "free") === "free") {
+    const { count } = await adminClient
+      .from("leads")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId)
+
+    if ((count ?? 0) >= FREE_LEAD_LIMIT) {
+      return { error: `O plano Free suporta até ${FREE_LEAD_LIMIT} leads.`, limitReached: true }
+    }
+  }
 
   const { data: lead, error } = await adminClient
     .from("leads")

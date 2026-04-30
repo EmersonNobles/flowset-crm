@@ -30,6 +30,14 @@ export async function createActivity(leadId: string, formData: FormData) {
   if (!type || !VALID_ACTIVITY_TYPES.includes(type)) return { error: "Tipo de atividade inválido" }
   if (!description) return { error: "Descrição é obrigatória" }
 
+  const { data: leadCheck } = await adminClient
+    .from("leads")
+    .select("id")
+    .eq("id", leadId)
+    .eq("workspace_id", workspaceId)
+    .maybeSingle()
+  if (!leadCheck) return { error: "Lead inválido." }
+
   const { error } = await adminClient.from("activities").insert({
     lead_id: leadId,
     workspace_id: workspaceId,
@@ -52,6 +60,7 @@ export async function deleteActivity(activityId: string, leadId: string) {
     .select("role")
     .eq("workspace_id", workspaceId)
     .eq("user_id", user.id)
+    .eq("status", "active")
     .maybeSingle()
 
   const { data: activity } = await adminClient

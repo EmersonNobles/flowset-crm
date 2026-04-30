@@ -65,10 +65,21 @@ export async function createDeal(formData: FormData) {
   const title = (formData.get("title") as string)?.trim()
   if (!title) return { error: "Título é obrigatório" }
 
+  const leadId = (formData.get("leadId") as string) || null
+  if (leadId) {
+    const { data: leadCheck } = await adminClient
+      .from("leads")
+      .select("id")
+      .eq("id", leadId)
+      .eq("workspace_id", workspaceId)
+      .maybeSingle()
+    if (!leadCheck) return { error: "Lead inválido." }
+  }
+
   const { error } = await adminClient.from("deals").insert({
     title,
     value: parseBRL(formData.get("value")),
-    lead_id: (formData.get("leadId") as string) || null,
+    lead_id: leadId,
     owner_id: user.id,
     stage: assertValidStage(formData.get("stage") as string)
       ? (formData.get("stage") as DealStage)
@@ -89,12 +100,23 @@ export async function updateDeal(id: string, formData: FormData) {
   const title = (formData.get("title") as string)?.trim()
   if (!title) return { error: "Título é obrigatório" }
 
+  const leadId = (formData.get("leadId") as string) || null
+  if (leadId) {
+    const { data: leadCheck } = await adminClient
+      .from("leads")
+      .select("id")
+      .eq("id", leadId)
+      .eq("workspace_id", workspaceId)
+      .maybeSingle()
+    if (!leadCheck) return { error: "Lead inválido." }
+  }
+
   const { error } = await adminClient
     .from("deals")
     .update({
       title,
       value: parseBRL(formData.get("value")),
-      lead_id: (formData.get("leadId") as string) || null,
+      lead_id: leadId,
       due_date: (formData.get("dueDate") as string) || null,
       stage: assertValidStage(formData.get("stage") as string)
       ? (formData.get("stage") as DealStage)
