@@ -71,7 +71,7 @@ export function FunnelChart({ data }: FunnelChartProps) {
         <XAxis
           type="category"
           dataKey="label"
-          tick={{ fontSize: 11, fill: "#94a3b8" }}
+          tick={{ fontSize: 11, fill: "#9A9A9A" }}
           axisLine={false}
           tickLine={false}
           interval={0}
@@ -79,7 +79,7 @@ export function FunnelChart({ data }: FunnelChartProps) {
         <YAxis
           type="number"
           allowDecimals={false}
-          tick={{ fontSize: 11, fill: "#94a3b8" }}
+          tick={{ fontSize: 11, fill: "#9A9A9A" }}
           axisLine={false}
           tickLine={false}
           width={24}

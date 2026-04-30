@@ -49,13 +49,15 @@ function getInitials(name: string): string {
 
 const fieldClass = (hasError?: boolean) =>
   cn(
-    "h-8 w-full rounded-lg border bg-background px-2.5 text-sm text-foreground",
+    "h-9 w-full rounded-[10px] border bg-background px-3 text-sm text-foreground",
     "placeholder:text-muted-foreground outline-none focus:ring-3 focus:ring-ring/50 transition-all",
-    hasError ? "border-destructive" : "border-border focus:border-ring"
+    hasError
+      ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+      : "border-border focus:border-ring"
   )
 
 const selectClass = cn(
-  "h-8 w-full rounded-lg border border-border bg-background px-2.5 text-sm text-foreground",
+  "h-9 w-full rounded-[10px] border border-border bg-background px-3 text-sm text-foreground",
   "outline-none focus:border-ring focus:ring-3 focus:ring-ring/50 transition-all cursor-pointer"
 )
 
@@ -148,7 +150,7 @@ export function DealDetailSheet({
       {/* Sheet */}
       <div
         className={cn(
-          "fixed inset-y-0 right-0 z-50 flex w-full max-w-[360px] flex-col bg-background border-l border-border shadow-2xl",
+          "fixed inset-y-0 right-0 z-50 flex w-full max-w-[360px] flex-col bg-brand-card-dark border-l border-white/8 shadow-2xl",
           "transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
           open ? "translate-x-0" : "translate-x-full"
         )}
@@ -156,7 +158,7 @@ export function DealDetailSheet({
         {deal && (
           <>
             {/* Header */}
-            <div className="flex items-start justify-between gap-3 px-5 pt-5 pb-4 border-b border-border shrink-0">
+            <div className="flex items-start justify-between gap-3 px-5 pt-5 pb-4 border-b border-white/8 shrink-0">
               <div className="min-w-0">
                 {stageConfig && !editing && (
                   <div className="flex items-center gap-1.5 mb-1.5">
@@ -179,14 +181,14 @@ export function DealDetailSheet({
                 {!editing && (
                   <button
                     onClick={() => setEditing(true)}
-                    className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    className="flex size-7 items-center justify-center rounded-[8px] text-muted-foreground hover:bg-white/8 hover:text-foreground transition-colors"
                   >
                     <Pencil className="size-3.5" />
                   </button>
                 )}
                 <button
                   onClick={onClose}
-                  className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  className="flex size-7 items-center justify-center rounded-[8px] text-muted-foreground hover:bg-white/8 hover:text-foreground transition-colors"
                 >
                   <X className="size-4" />
                 </button>
@@ -264,13 +266,13 @@ export function DealDetailSheet({
                   </div>
 
                   {serverError && (
-                    <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
+                    <p className="text-sm text-destructive bg-destructive/10 rounded-[10px] px-3 py-2">
                       {serverError}
                     </p>
                   )}
                 </div>
 
-                <div className="flex justify-end gap-2 px-5 py-4 border-t border-border shrink-0">
+                <div className="flex justify-end gap-2 px-5 py-4 border-t border-white/8 shrink-0">
                   <Button
                     variant="outline"
                     size="sm"
@@ -287,7 +289,7 @@ export function DealDetailSheet({
             ) : (
               /* ── View mode ─────────────────────────────────────── */
               <>
-                <div className="px-5 py-4 border-b border-border shrink-0">
+                <div className="px-5 py-4 border-b border-white/8 shrink-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <TrendingUp className="size-3.5 text-primary" />
                     <span className="text-xs text-muted-foreground">Valor do negócio</span>
@@ -351,12 +353,12 @@ export function DealDetailSheet({
                   )}
 
                   {deal.notes && (
-                    <div className="pt-1 border-t border-border">
+                    <div className="pt-1 border-t border-white/8">
                       <div className="flex items-center gap-1.5 mb-2">
                         <FileText className="size-3.5 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">Notas</span>
                       </div>
-                      <p className="text-sm text-foreground leading-relaxed bg-muted/40 rounded-lg px-3 py-2.5">
+                      <p className="text-sm text-foreground leading-relaxed bg-white/[0.03] rounded-[10px] px-3 py-2.5">
                         {deal.notes}
                       </p>
                     </div>

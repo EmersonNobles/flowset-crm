@@ -20,13 +20,13 @@ export function UpgradeBanner({ current, limit, resource }: Props) {
 
   return (
     <div
-      className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-sm ${
+      className={`flex items-start gap-3 rounded-[14px] border px-4 py-3 text-sm ${
         isAtLimit
-          ? "border-red-200 bg-red-50 text-red-800"
-          : "border-amber-200 bg-amber-50 text-amber-800"
+          ? "border-destructive/30 bg-destructive/10 text-brand-creme"
+          : "border-primary/30 bg-primary/10 text-brand-creme"
       }`}
     >
-      <Zap className="size-4 shrink-0 mt-0.5" />
+      <Zap className={`size-4 shrink-0 mt-0.5 ${isAtLimit ? "text-destructive" : "text-primary"}`} />
       <div className="flex-1 min-w-0">
         {isAtLimit ? (
           <span>

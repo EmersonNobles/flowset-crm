@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Gloock, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const syne = Syne({
+const gloock = Gloock({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400"],
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${syne.variable} ${dmSans.variable} ${ibmPlexMono.variable} dark`}
+      className={`${gloock.variable} ${inter.variable} ${ibmPlexMono.variable} dark`}
     >
       <body className="font-sans antialiased">{children}</body>
     </html>

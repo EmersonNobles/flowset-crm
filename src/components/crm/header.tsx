@@ -45,14 +45,14 @@ export function Header({ workspaces, activeWorkspaceId, userEmail, userName }: H
   }
 
   return (
-    <header className="h-14 border-b border-border bg-card px-4 md:px-6 flex items-center justify-between shrink-0">
+    <header className="h-14 border-b border-border bg-brand-card-dark px-4 md:px-6 flex items-center justify-between shrink-0">
 
       {/* Workspace switcher */}
       <div className="relative ml-10 md:ml-0">
         <button
           onClick={() => setWorkspaceOpen((p) => !p)}
           disabled={isPending}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-accent transition-colors disabled:opacity-60"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-[10px] text-sm font-medium hover:bg-white/5 transition-colors disabled:opacity-60"
         >
           <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
           <span className="text-foreground max-w-[140px] truncate">{activeWorkspace?.name}</span>
@@ -62,7 +62,7 @@ export function Header({ workspaces, activeWorkspaceId, userEmail, userName }: H
         {workspaceOpen && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setWorkspaceOpen(false)} />
-            <div className="absolute left-0 top-full mt-1 w-56 bg-card border border-border rounded-md shadow-lg z-20 py-1">
+            <div className="absolute left-0 top-full mt-1 w-56 bg-brand-card-dark border border-border rounded-[14px] shadow-lg z-20 py-1">
               <p className="px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 Workspaces
               </p>
@@ -73,7 +73,7 @@ export function Header({ workspaces, activeWorkspaceId, userEmail, userName }: H
                     key={ws.id}
                     onClick={() => handleSwitch(ws.id)}
                     className={cn(
-                      "w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors flex items-center gap-2",
+                      "w-full text-left px-3 py-2 text-sm hover:bg-white/5 transition-colors flex items-center gap-2",
                       isActive ? "text-primary font-medium" : "text-foreground"
                     )}
                   >
@@ -91,7 +91,7 @@ export function Header({ workspaces, activeWorkspaceId, userEmail, userName }: H
                 <a
                   href="/workspace"
                   onClick={() => setWorkspaceOpen(false)}
-                  className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-accent transition-colors flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-white/5 transition-colors flex items-center gap-2"
                 >
                   <Plus className="size-3.5" />
                   Criar novo workspace
@@ -106,7 +106,7 @@ export function Header({ workspaces, activeWorkspaceId, userEmail, userName }: H
       <div className="relative">
         <button
           onClick={() => setProfileOpen((p) => !p)}
-          className="flex items-center gap-2.5 px-2 py-1.5 rounded-md hover:bg-accent transition-colors"
+          className="flex items-center gap-2.5 px-2 py-1.5 rounded-[10px] hover:bg-white/5 transition-colors"
         >
           {/* Avatar */}
           <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
@@ -121,7 +121,7 @@ export function Header({ workspaces, activeWorkspaceId, userEmail, userName }: H
         {profileOpen && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setProfileOpen(false)} />
-            <div className="absolute right-0 top-full mt-1 w-60 bg-card border border-border rounded-md shadow-lg z-20 py-1">
+            <div className="absolute right-0 top-full mt-1 w-60 bg-brand-card-dark border border-border rounded-[14px] shadow-lg z-20 py-1">
               {/* Info do usuário */}
               <div className="px-3 py-2.5 border-b border-border">
                 <p className="text-xs font-medium text-foreground truncate">
@@ -134,7 +134,7 @@ export function Header({ workspaces, activeWorkspaceId, userEmail, userName }: H
                 <a
                   href="/settings"
                   onClick={() => setProfileOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+                  className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-white/5 transition-colors"
                 >
                   <Settings className="size-4 text-muted-foreground" />
                   Configurações
@@ -142,7 +142,7 @@ export function Header({ workspaces, activeWorkspaceId, userEmail, userName }: H
                 <a
                   href="/settings/team"
                   onClick={() => setProfileOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+                  className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-white/5 transition-colors"
                 >
                   <User className="size-4 text-muted-foreground" />
                   Equipe
@@ -152,7 +152,7 @@ export function Header({ workspaces, activeWorkspaceId, userEmail, userName }: H
               <div className="border-t border-border pt-1">
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-destructive transition-colors"
+                  className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-foreground hover:bg-white/5 hover:text-destructive transition-colors"
                 >
                   <LogOut className="size-4 text-muted-foreground" />
                   Sair

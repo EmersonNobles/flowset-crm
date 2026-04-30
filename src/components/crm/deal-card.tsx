@@ -68,14 +68,14 @@ function ActionMenu() {
         onClick={() => setOpen((v) => !v)}
         className={cn(
           "flex size-5 items-center justify-center rounded opacity-0 group-hover:opacity-100 transition-opacity",
-          "hover:bg-white/10 text-muted-foreground hover:text-foreground"
+          "hover:bg-white/8 text-brand-areia hover:text-brand-creme"
         )}
       >
         <MoreHorizontal className="size-3.5" />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-6 z-20 w-36 rounded-lg border border-border bg-card shadow-xl py-1">
+        <div className="absolute right-0 top-6 z-20 w-36 rounded-[10px] border border-white/8 bg-brand-preto shadow-xl py-1">
           {actions.map(({ icon: Icon, label, onClick, destructive }) => (
             <button
               key={label}
@@ -84,7 +84,7 @@ function ActionMenu() {
                 "flex w-full items-center gap-2 px-3 py-1.5 text-xs transition-colors",
                 destructive
                   ? "text-red-400 hover:bg-red-500/10"
-                  : "text-foreground hover:bg-white/5"
+                  : "text-brand-creme hover:bg-white/5"
               )}
             >
               <Icon className="size-3" />
@@ -118,9 +118,9 @@ export function DealCard({ deal, onCardClick, isOverlay }: DealCardProps) {
       {...listeners}
       onClick={() => !isDragging && onCardClick(deal)}
       className={cn(
-        "group relative bg-card border border-border/60 rounded-lg p-3 cursor-pointer select-none",
+        "group relative bg-brand-card-dark border border-white/8 rounded-[14px] p-3 cursor-pointer select-none",
         "transition-all duration-150",
-        "hover:border-border hover:shadow-[0_4px_16px_rgba(0,0,0,0.3)]",
+        "hover:border-white/15 hover:shadow-[0_4px_20px_rgba(0,0,0,0.4)]",
         isDragging && "opacity-30",
         isOverlay && "cursor-grabbing"
       )}
@@ -150,7 +150,7 @@ export function DealCard({ deal, onCardClick, isOverlay }: DealCardProps) {
         >
           {getInitials(deal.leadName)}
         </span>
-        <span className="text-[11px] text-muted-foreground truncate">
+        <span className="text-[11px] text-brand-areia truncate">
           {deal.leadName}
           <span className="opacity-50 mx-1">·</span>
           {deal.leadCompany}
@@ -167,13 +167,13 @@ export function DealCard({ deal, onCardClick, isOverlay }: DealCardProps) {
 
       {/* Footer: owner + due date */}
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] text-muted-foreground truncate max-w-[110px]">
+        <span className="text-[11px] text-brand-areia truncate max-w-[110px]">
           {deal.owner}
         </span>
 
         <div
           className="flex items-center gap-1 text-[11px] tabular-nums shrink-0"
-          style={{ color: dueDateColor ?? "rgb(var(--muted-foreground) / 1)" }}
+          style={{ color: dueDateColor ?? "#9A9A9A" }}
         >
           {overdue ? (
             <>

@@ -32,10 +32,10 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
             href={href}
             onClick={onNavigate}
             className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors",
+              "flex items-center gap-3 px-3 py-2.5 rounded-full text-sm transition-colors",
               active
-                ? "bg-primary text-primary-foreground font-semibold"
-                : "text-muted-foreground hover:bg-white/5 hover:text-foreground font-medium"
+                ? "bg-primary text-primary-foreground font-medium"
+                : "text-brand-areia hover:bg-white/5 hover:text-brand-creme font-medium"
             )}
           >
             <Icon className="h-4 w-4 shrink-0" />
@@ -49,13 +49,13 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 function SidebarLogo() {
   return (
-    <div className="flex items-center gap-2.5 px-5 py-5 border-b border-border">
-      <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary">
-        <span className="font-display font-bold text-sm text-primary-foreground leading-none">
-          P
+    <div className="flex items-center gap-2.5 px-5 py-5 border-b border-white/8">
+      <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary">
+        <span className="font-display text-sm text-primary-foreground leading-none">
+          F
         </span>
       </div>
-      <span className="font-display font-bold text-base tracking-tight text-foreground">
+      <span className="font-display text-base tracking-tight text-brand-creme">
         FlowSet
       </span>
     </div>
@@ -68,18 +68,22 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-56 shrink-0 border-r border-border bg-card h-screen sticky top-0">
+      <aside className="hidden md:flex flex-col w-56 shrink-0 border-r border-white/8 bg-brand-preto h-screen sticky top-0">
         <SidebarLogo />
         <NavLinks />
       </aside>
 
       {/* Mobile toggle */}
       <button
-        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-card border border-border shadow-sm"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-brand-preto border border-white/10 shadow-sm"
         onClick={() => setMobileOpen((prev) => !prev)}
         aria-label="Abrir menu"
       >
-        {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        {mobileOpen ? (
+          <X className="h-5 w-5 text-brand-creme" />
+        ) : (
+          <Menu className="h-5 w-5 text-brand-creme" />
+        )}
       </button>
 
       {/* Mobile overlay */}
@@ -95,7 +99,7 @@ export function Sidebar() {
       {/* Mobile drawer */}
       <aside
         className={cn(
-          "md:hidden fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-card border-r border-border transition-transform duration-200 ease-out",
+          "md:hidden fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-brand-preto border-r border-white/8 transition-transform duration-200 ease-out",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
         aria-label="Menu de navegação"

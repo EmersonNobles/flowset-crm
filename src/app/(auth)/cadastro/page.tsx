@@ -27,7 +27,7 @@ const schema = z
 type FormData = z.infer<typeof schema>
 
 const inputBase =
-  "w-full rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+  "h-9 w-full rounded-[10px] border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-3 focus:ring-ring/50 transition-all disabled:opacity-50"
 
 export default function CadastroPage() {
   const [loading, setLoading] = useState(false)
@@ -93,50 +93,70 @@ export default function CadastroPage() {
   return (
     <AuthCard title="Criar conta" description="Comece a usar o FlowSet gratuitamente">
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-foreground">Nome</label>
           <input
             type="text"
             placeholder="Seu nome"
             disabled={loading}
             {...register("name")}
-            className={cn(inputBase, errors.name ? "border-destructive focus:ring-destructive/40" : "border-border")}
+            className={cn(
+              inputBase,
+              errors.name
+                ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+                : "border-border focus:border-ring"
+            )}
           />
           {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-foreground">E-mail</label>
           <input
             type="email"
             placeholder="voce@empresa.com"
             disabled={loading}
             {...register("email")}
-            className={cn(inputBase, errors.email ? "border-destructive focus:ring-destructive/40" : "border-border")}
+            className={cn(
+              inputBase,
+              errors.email
+                ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+                : "border-border focus:border-ring"
+            )}
           />
           {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-foreground">Senha</label>
           <input
             type="password"
             placeholder="Mínimo 8 caracteres"
             disabled={loading}
             {...register("password")}
-            className={cn(inputBase, errors.password ? "border-destructive focus:ring-destructive/40" : "border-border")}
+            className={cn(
+              inputBase,
+              errors.password
+                ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+                : "border-border focus:border-ring"
+            )}
           />
           {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-foreground">Confirmar senha</label>
           <input
             type="password"
             placeholder="Repita a senha"
             disabled={loading}
             {...register("confirmPassword")}
-            className={cn(inputBase, errors.confirmPassword ? "border-destructive focus:ring-destructive/40" : "border-border")}
+            className={cn(
+              inputBase,
+              errors.confirmPassword
+                ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+                : "border-border focus:border-ring"
+            )}
           />
           {errors.confirmPassword && (
             <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
@@ -144,10 +164,12 @@ export default function CadastroPage() {
         </div>
 
         {error && (
-          <p className="text-sm text-destructive text-center">{error}</p>
+          <p className="text-sm text-destructive bg-destructive/10 rounded-[10px] px-3 py-2 text-center">
+            {error}
+          </p>
         )}
 
-        <Button type="submit" disabled={loading} className="w-full mt-1 h-9">
+        <Button type="submit" disabled={loading} className="w-full mt-1">
           {loading ? <Loader2 className="size-4 animate-spin" /> : "Criar conta"}
         </Button>
       </form>

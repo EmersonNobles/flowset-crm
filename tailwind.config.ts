@@ -10,49 +10,62 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        border: "oklch(var(--border))",
-        input: "oklch(var(--input))",
-        ring: "oklch(var(--ring))",
+        border:     "oklch(var(--border))",
+        input:      "oklch(var(--input))",
+        ring:       "oklch(var(--ring))",
         background: "oklch(var(--background))",
         foreground: "oklch(var(--foreground))",
         primary: {
-          DEFAULT: "oklch(var(--primary))",
+          DEFAULT:    "oklch(var(--primary))",
           foreground: "oklch(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "oklch(var(--secondary))",
+          DEFAULT:    "oklch(var(--secondary))",
           foreground: "oklch(var(--secondary-foreground))",
         },
         destructive: {
-          DEFAULT: "oklch(var(--destructive))",
+          DEFAULT:    "oklch(var(--destructive))",
           foreground: "oklch(var(--destructive-foreground))",
         },
         muted: {
-          DEFAULT: "oklch(var(--muted))",
+          DEFAULT:    "oklch(var(--muted))",
           foreground: "oklch(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "oklch(var(--accent))",
+          DEFAULT:    "oklch(var(--accent))",
           foreground: "oklch(var(--accent-foreground))",
         },
         popover: {
-          DEFAULT: "oklch(var(--popover))",
+          DEFAULT:    "oklch(var(--popover))",
           foreground: "oklch(var(--popover-foreground))",
         },
         card: {
-          DEFAULT: "oklch(var(--card))",
+          DEFAULT:    "oklch(var(--card))",
           foreground: "oklch(var(--card-foreground))",
+        },
+        // FlowSet brand palette — direct hex aliases
+        brand: {
+          preto:           "#0A0A0A",
+          "card-dark":     "#141414",
+          creme:           "#F5F0E8",
+          areia:           "#C8C4BA",
+          neon:            "#4AE68A",
+          "verde-medio":   "#1D9E75",
+          "verde-escuro":  "#085041",
+          cinza:           "#666666",
+          "cinza-claro":   "#9A9A9A",
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg:   "var(--radius)",
+        md:   "calc(var(--radius) - 3px)",
+        sm:   "calc(var(--radius) - 6px)",
+        full: "9999px",
       },
       fontFamily: {
-        display: ["var(--font-display)", "system-ui", "sans-serif"],
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "monospace"],
+        display: ["var(--font-display)", "Georgia", "serif"],
+        sans:    ["var(--font-sans)", "system-ui", "sans-serif"],
+        mono:    ["var(--font-mono)", "monospace"],
       },
     },
   },

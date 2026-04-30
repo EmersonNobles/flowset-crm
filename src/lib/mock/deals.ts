@@ -28,7 +28,7 @@ export type StageColor = {
 export const STAGE_COLORS: Record<DealStage, StageColor> = {
   novo_lead:         { hex: "#3B82F6", label: "Novo Lead"           },
   contato_realizado: { hex: "#06B6D4", label: "Contato Realizado"   },
-  proposta_enviada:  { hex: "#CAFF33", label: "Proposta Enviada"    },
+  proposta_enviada:  { hex: "#4AE68A", label: "Proposta Enviada"    },
   negociacao:        { hex: "#F97316", label: "Negociação"          },
   fechado_ganho:     { hex: "#22C55E", label: "Fechado Ganho"       },
   fechado_perdido:   { hex: "#FF4757", label: "Fechado Perdido"     },
